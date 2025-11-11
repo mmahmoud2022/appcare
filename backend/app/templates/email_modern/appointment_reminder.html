@@ -1,0 +1,11 @@
+{% extends "email_modern/base.html" %}
+{% block content %}
+<h2 style="color:#00B894;">Rappel de rendez-vous</h2>
+<p>Bonjour {{ patient_name }},</p>
+<p>Ceci est un rappel pour votre rendez-vous à venir avec Dr. {{ doctor_name }}.</p>
+<div class="info-box">
+  <p><b>Date :</b> {{ appointment_date }}</p>
+  <p><b>Heure :</b> {{ appointment_time }}</p>
+</div>
+<p>N'oubliez pas d'apporter vos documents médicaux et votre carte d'assurance.</p>
+{% endblock %}

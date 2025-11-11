@@ -1,0 +1,7 @@
+{% extends "email_modern/base.html" %}
+{% block content %}
+<h2 style="color:#e67e22;">Rendez-vous manqué</h2>
+<p>Bonjour {{ patient_name }},</p>
+<p>Vous n'avez pas honoré votre rendez-vous du <b>{{ appointment_date }}</b> à <b>{{ appointment_time }}</b> avec Dr. {{ doctor_name }}.</p>
+<p>Pour replanifier, connectez-vous à votre espace patient.</p>
+{% endblock %}

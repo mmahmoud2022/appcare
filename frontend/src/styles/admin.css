@@ -1,0 +1,30 @@
+/* ============================================
+   ADMIN DASHBOARD PAGE STYLES - Tailwind CSS
+   ============================================ */
+
+/* Toutes les classes ont été migrées vers Tailwind CSS directement dans les composants.
+   Ce fichier contient uniquement des animations personnalisées. */
+
+/* Animation de rotation pour le spinner */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animation de fondu */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Animation de mise à l'échelle */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

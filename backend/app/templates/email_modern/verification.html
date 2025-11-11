@@ -1,0 +1,11 @@
+{% extends "email_modern/base.html" %}
+{% block content %}
+<h2 style="color:#00B894;">Vérification de votre adresse email</h2>
+<p>Bonjour {{ first_name }},</p>
+<p>Merci de vous être inscrit sur Santé Medical. Veuillez cliquer sur le bouton ci-dessous pour vérifier votre adresse email :</p>
+<p style="text-align:center;">
+  <a href="{{ verification_url }}" class="button">Vérifier mon email</a>
+</p>
+<p>Ce lien est valable pendant <b>24 heures</b>.</p>
+<p>Si vous n'êtes pas à l'origine de cette inscription, ignorez simplement cet email.</p>
+{% endblock %}

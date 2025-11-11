@@ -1,0 +1,29 @@
+# Postfix main configuration for SMTP relay only (no local delivery)
+myhostname = sante-smtp
+mydomain = sante-app.com
+myorigin = $mydomain
+inet_interfaces = all
+inet_protocols = ipv4
+mydestination =
+relay_domains =
+smtpd_banner = $myhostname ESMTP
+
+# TLS config
+smtpd_tls_cert_file = /etc/postfix/certs/smtp.crt
+smtpd_tls_key_file = /etc/postfix/certs/smtp.key
+smtpd_use_tls = yes
+smtpd_tls_security_level = may
+smtp_tls_security_level = may
+smtpd_tls_auth_only = yes
+
+# SASL authentication (optional, for future)
+smtpd_sasl_auth_enable = no
+
+# Disable local delivery
+local_transport = error:local delivery disabled
+
+# Allow only authenticated clients (optional, for now open to Docker network)
+smtpd_recipient_restrictions = permit_mynetworks, reject_unauth_destination
+
+# Logging
+maillog_file = /dev/stdout

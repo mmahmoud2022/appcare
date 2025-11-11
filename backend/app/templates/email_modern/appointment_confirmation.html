@@ -1,0 +1,12 @@
+{% extends "email_modern/base.html" %}
+{% block content %}
+<h2 style="color:#00B894;">Confirmation de rendez-vous</h2>
+<p>Bonjour {{ patient_name }},</p>
+<p>Votre rendez-vous a bien été confirmé avec le Dr. {{ doctor_name }}.</p>
+<div class="info-box">
+  <p><b>Date :</b> {{ appointment_date }}</p>
+  <p><b>Heure :</b> {{ appointment_time }}</p>
+  <p><b>Type :</b> {{ appointment_type }}</p>
+</div>
+<p>Pour annuler ou replanifier, utilisez votre espace patient.</p>
+{% endblock %}

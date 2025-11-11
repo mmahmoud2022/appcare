@@ -1,0 +1,7 @@
+{% extends "email_modern/base.html" %}
+{% block content %}
+<h2 style="color:#e74c3c;">Annulation de rendez-vous</h2>
+<p>Bonjour {{ patient_name }},</p>
+<p>Votre rendez-vous du <b>{{ appointment_date }}</b> à <b>{{ appointment_time }}</b> avec Dr. {{ doctor_name }} a été <b>annulé</b>.</p>
+<p>Pour prendre un nouveau rendez-vous, connectez-vous à votre espace patient.</p>
+{% endblock %}

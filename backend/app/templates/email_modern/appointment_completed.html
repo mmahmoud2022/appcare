@@ -1,0 +1,11 @@
+{% extends "email_modern/base.html" %}
+{% block content %}
+<h2 style="color:#00B894;">Votre rendez-vous est terminé</h2>
+<p>Bonjour {{ patient_name }},</p>
+<p>Votre rendez-vous avec Dr. {{ doctor_name }} est terminé.</p>
+<p>Merci de nous faire part de votre avis en cliquant sur le bouton ci-dessous :</p>
+<p style="text-align:center;">
+  <a href="{{ review_url }}" class="button">Donner mon avis</a>
+</p>
+<p>Merci pour votre confiance !</p>
+{% endblock %}
