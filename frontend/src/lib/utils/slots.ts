@@ -10,8 +10,10 @@ export interface SlotSuggestion {
 }
 
 export interface SlotSuggestionGroup {
+  key: string;
   date: Date;
   dateLabel: string;
+  label: string;
   slots: SlotSuggestion[];
 }
 
@@ -30,13 +32,16 @@ export const groupSlotsByDay = (slots: SlotSuggestion[]): SlotSuggestionGroup[] 
   slots.forEach(slot => {
     const dateKey = slot.start.toISOString().split('T')[0];
     if (!groups.has(dateKey)) {
+      const dateLabel = slot.start.toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      });
       groups.set(dateKey, {
+        key: dateKey,
         date: new Date(slot.start),
-        dateLabel: slot.start.toLocaleDateString('fr-FR', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-        }),
+        dateLabel: dateLabel,
+        label: dateLabel,
         slots: [],
       });
     }

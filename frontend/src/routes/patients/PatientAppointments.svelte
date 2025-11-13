@@ -1224,13 +1224,13 @@
 
 <!-- Review Modal -->
 {#if showReviewModal && reviewAppointment}
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div 
     class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
     transition:fade={{ duration: 200 }}
     on:click={closeReviewModal}
   >
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div 
       class="bg-white rounded-3xl max-w-lg w-full shadow-2xl transform"
       transition:fly={{ y: 20, duration: 300 }}
