@@ -48,6 +48,7 @@
   
   // Components
   import BookingModal from '../../components/booking/BookingModal.svelte';
+  import TeleconsultationButton from '../../components/TeleconsultationButton.svelte';
 
   const dispatch = createEventDispatcher();
   
@@ -324,6 +325,12 @@
     reviewComment = '';
   };
 
+  const handleReviewModalKeydown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      closeReviewModal();
+    }
+  };
+
   const submitReview = async () => {
     if (!reviewAppointment || reviewRating === 0) return;
     
@@ -515,10 +522,10 @@
                   <!-- Main Card -->
                   <div class="relative bg-white rounded-3xl p-8 shadow-2xl border-2 border-gray-100 overflow-hidden">
                     <!-- Animated background pattern -->
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 group-hover:scale-150 transition-transform duration-1000"></div>
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 group-hover:scale-150 transition-transform duration-1000 pointer-events-none"></div>
                     
                     <!-- Status badge with animation -->
-                    <div class="absolute top-6 right-6">
+                    <div class="absolute top-6 right-6 z-20">
                       <div class={`relative px-4 py-2 rounded-full font-bold text-sm shadow-lg transform transition-transform duration-300 ${
                         appointment.status === 'confirmed' 
                           ? 'bg-gradient-to-r from-green-400 to-emerald-600 text-white group-hover:scale-110' 
@@ -531,7 +538,7 @@
                       </div>
                     </div>
                     
-                    <div class="relative z-10">
+                    <div class="relative z-20">
                       <!-- Doctor info with avatar -->
                       <div class="flex items-start gap-4 mb-6">
                         <div class="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-xl transform group-hover:rotate-12 transition-transform duration-500">
@@ -594,13 +601,25 @@
                         </div>
                       {/if}
 
+                      <!-- Teleconsultation button (if applicable) -->
+                      {#if appointment.meet_link}
+                        <div class="mb-6">
+                          <TeleconsultationButton 
+                            meetLink={appointment.meet_link}
+                            appointmentDate={appointment.appointment_date}
+                            appointmentStatus={appointment.status}
+                            size="large"
+                          />
+                        </div>
+                      {/if}
+
                       <!-- Action buttons with hover effects -->
                       <div class="flex gap-3">
                         <button
                           on:click={() => openRescheduleModal(appointment)}
-                          class="group/btn flex-1 relative overflow-hidden px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl font-bold shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 active:scale-95"
+                          class="group/btn flex-1 relative overflow-hidden px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl font-bold shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 active:scale-95 z-10"
                         >
-                          <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-700 opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
+                          <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-700 opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none"></div>
                           <span class="relative flex items-center justify-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -610,9 +629,9 @@
                         </button>
                         <button
                           on:click={() => promptCancelAppointment(appointment)}
-                          class="group/btn flex-1 relative overflow-hidden px-6 py-4 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-2xl font-bold shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 active:scale-95"
+                          class="group/btn flex-1 relative overflow-hidden px-6 py-4 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-2xl font-bold shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 active:scale-95 z-10"
                         >
-                          <div class="absolute inset-0 bg-gradient-to-r from-red-600 to-pink-700 opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
+                          <div class="absolute inset-0 bg-gradient-to-r from-red-600 to-pink-700 opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none"></div>
                           <span class="relative flex items-center justify-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -754,6 +773,18 @@
                             <div class="bg-gradient-to-r from-gray-50 to-slate-50 px-4 py-2 rounded-xl border border-gray-200">
                               <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Motif</p>
                               <p class="text-sm text-gray-800 font-semibold">{appointment.reason}</p>
+                            </div>
+                          {/if}
+
+                          <!-- Teleconsultation info (if it was a teleconsultation) -->
+                          {#if appointment.meet_link && appointment.consultation_type === 'teleconsultation'}
+                            <div class="mt-3 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 rounded-xl border border-green-200">
+                              <p class="text-xs font-bold text-green-600 uppercase tracking-wide flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                Téléconsultation effectuée
+                              </p>
                             </div>
                           {/if}
                         </div>
@@ -1224,13 +1255,20 @@
 
 <!-- Review Modal -->
 {#if showReviewModal && reviewAppointment}
+  <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+  <!-- svelte-ignore a11y-interactive-supports-focus -->
   <div 
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="review-modal-title"
+    tabindex="-1"
     class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
     transition:fade={{ duration: 200 }}
     on:click={closeReviewModal}
+    on:keydown={handleReviewModalKeydown}
   >
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div 
       class="bg-white rounded-3xl max-w-lg w-full shadow-2xl transform"
       transition:fly={{ y: 20, duration: 300 }}
@@ -1246,7 +1284,7 @@
               </svg>
             </div>
             <div>
-              <h3 class="text-2xl font-bold text-gray-900">Noter le rendez-vous</h3>
+              <h3 id="review-modal-title" class="text-2xl font-bold text-gray-900">Noter le rendez-vous</h3>
               <p class="text-sm text-gray-600 font-medium">Dr. {reviewAppointment.doctor_first_name} {reviewAppointment.doctor_last_name}</p>
             </div>
           </div>
@@ -1266,11 +1304,12 @@
       <div class="px-8 py-6 space-y-6">
         <!-- Star Rating -->
         <div>
-          <label class="block text-sm font-bold text-gray-700 mb-3">Votre note <span class="text-red-500">*</span></label>
-          <div class="flex items-center gap-2">
+          <div id="rating-label" class="block text-sm font-bold text-gray-700 mb-3">Votre note <span class="text-red-500">*</span></div>
+          <div class="flex items-center gap-2" role="group" aria-labelledby="rating-label">
             {#each [1, 2, 3, 4, 5] as star}
               <button
                 type="button"
+                aria-label="{star} étoile{star > 1 ? 's' : ''}"
                 on:click={() => reviewRating = star}
                 class="group transition-transform duration-200 hover:scale-110 active:scale-95"
               >

@@ -79,7 +79,7 @@
                       {suggestion.start.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - {suggestion.end.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                     </p>
                     <p class={`text-xs truncate ${isSlotSelected(suggestion, selectedDate, selectedScheduleEntryId) ? 'text-white/90' : 'text-gray-600'}`}>
-                      {suggestion.entry.consultation_type === 'in_person' ? 'Cabinet' : suggestion.entry.consultation_type === 'teleconsultation' ? 'Téléconsultation' : 'Cabinet/Télé'}
+                      {suggestion.consultation_type === 'in_person' ? 'Cabinet' : suggestion.consultation_type === 'teleconsultation' ? 'Téléconsultation' : 'Cabinet/Télé'}
                     </p>
                   </div>
                   {#if isSlotSelected(suggestion, selectedDate, selectedScheduleEntryId)}

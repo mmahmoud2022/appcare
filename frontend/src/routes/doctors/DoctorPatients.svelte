@@ -6,15 +6,15 @@
     uploadPatientDocument,
     issueElectronicPrescription,
     deletePatient,
-    type PatientInfo,
+    type PatientBasicInfo,
     type MedicalRecord,
     type PrescriptionMedication
   } from '../../lib/api-doctor';
   
-  let patients: PatientInfo[] = [];
+  let patients: PatientBasicInfo[] = [];
   let loading = true;
   let error: string | null = null;
-  let selectedPatient: PatientInfo | null = null;
+  let selectedPatient: PatientBasicInfo | null = null;
   let showDetailsModal = false;
   let medicalRecord: MedicalRecord | null = null;
   let loadingRecord = false;
@@ -71,12 +71,12 @@
     });
   };
 
-  const openPatientDetails = async (patient: PatientInfo) => {
+  const openPatientDetails = async (patient: PatientBasicInfo) => {
     selectedPatient = patient;
     showDetailsModal = true;
     loadingRecord = true;
     resetDocumentForm();
-  resetPrescriptionForm();
+    resetPrescriptionForm();
     
     try {
       medicalRecord = await getPatientMedicalRecord(patient.id);
@@ -271,7 +271,7 @@
     }
   };
 
-  const handleDeletePatient = async (patient: PatientInfo) => {
+  const handleDeletePatient = async (patient: PatientBasicInfo) => {
     if (!confirm(`⚠️ ATTENTION : Êtes-vous sûr de vouloir supprimer le patient ${patient.first_name} ${patient.last_name} ?\n\nCette action supprimera également :\n- Tous les rendez-vous\n- Toutes les ordonnances\n- Tous les documents\n- Tout l'historique médical\n\nCette action est IRRÉVERSIBLE !`)) {
       return;
     }

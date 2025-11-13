@@ -9,7 +9,7 @@
     sendMessage,
     getMyPatients,
     type DoctorMessage,
-    type PatientInfo
+    type PatientBasicInfo
   } from '../../lib/api-doctor';
   
   let messages: DoctorMessage[] = [];
@@ -23,7 +23,7 @@
   let showNewMessageModal = false;
   let newPatientId = '';
   let newPatientName = '';
-  let availablePatients: PatientInfo[] = [];
+  let availablePatients: PatientBasicInfo[] = [];
   let loadingPatients = false;
   let selectedPatientId: number | null = null;
 
@@ -137,7 +137,7 @@
     }
 
     const profile = await getCurrentDoctorProfile();
-    const doctorId = profile.user?.id;
+    const doctorId = profile.user_id;
 
     if (doctorId == null) {
       throw new Error('Identifiant utilisateur du médecin introuvable');
@@ -269,7 +269,7 @@
         subject: '',
         content: '',
         is_read: false,
-        read_at: null,
+        read_at: undefined,
         created_at: new Date().toISOString(),
         appointment_id: undefined
       };

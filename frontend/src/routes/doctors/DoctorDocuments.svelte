@@ -5,13 +5,13 @@
     uploadPatientDocument,
     issueElectronicPrescription,
     getDoctorPrescriptions,
-    type PatientInfo,
+    type PatientBasicInfo,
     type ElectronicPrescription,
     type PrescriptionMedication,
   } from '../../lib/api-doctor';
 
   let activeTab: 'upload' | 'prescription' = 'upload';
-  let patients: PatientInfo[] = [];
+  let patients: PatientBasicInfo[] = [];
   let prescriptions: ElectronicPrescription[] = [];
   let loading = false;
   let error: string | null = null;

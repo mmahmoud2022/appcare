@@ -7,6 +7,7 @@
     type Appointment,
     type AppointmentStatus 
   } from '../../lib/api-doctor';
+  import TeleconsultationButton from '../../components/TeleconsultationButton.svelte';
   
   export let appointmentId: string | null = null;
   import { selectedAppointmentId, clearSelectedAppointment } from '../../lib/stores/ui';
@@ -343,6 +344,20 @@
           <h4 class="font-semibold text-gray-900 mb-2">Type de consultation</h4>
           <p class="text-gray-700">{getConsultationTypeLabel(selectedAppointment.consultation_type)}</p>
         </div>
+        
+        <!-- Teleconsultation button -->
+        {#if selectedAppointment.meet_link}
+          <div class="col-span-2">
+            <h4 class="font-semibold text-gray-900 mb-3">Téléconsultation</h4>
+            <TeleconsultationButton 
+              meetLink={selectedAppointment.meet_link}
+              appointmentDate={selectedAppointment.appointment_date}
+              appointmentStatus={selectedAppointment.status}
+              size="medium"
+            />
+          </div>
+        {/if}
+        
         <div>
           <h4 class="font-semibold text-gray-900 mb-2">Statut</h4>
           <span class="px-3 py-1 rounded-full text-sm font-medium {getStatusBadgeClass(selectedAppointment.status)}">
