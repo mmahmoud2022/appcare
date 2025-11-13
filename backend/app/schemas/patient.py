@@ -91,6 +91,7 @@ class PatientAppointmentSummary(BaseModel):
     status: AppointmentStatusEnum
     reason: Optional[str]
     is_teleconsultation: bool = False
+    meet_link: Optional[str] = None
     schedule_entry_id: Optional[int] = None
 
 
