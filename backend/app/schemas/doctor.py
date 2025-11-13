@@ -263,6 +263,7 @@ class AppointmentResponse(AppointmentBase):
     notes: Optional[str]
     diagnosis: Optional[str]
     prescription: Optional[str]
+    meet_link: Optional[str]
     created_at: datetime
     updated_at: Optional[datetime]
     cancelled_at: Optional[datetime]

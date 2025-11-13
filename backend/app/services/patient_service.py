@@ -55,6 +55,7 @@ from app.schemas.doctor import (
     DoctorAvailabilitySlot,
 )
 from app.services.doctor_service import DoctorService
+from app.services.teleconsultation_service import TeleconsultationService
 
 
 SPECIALTY_ALIASES: Dict[str, SpecialtyEnum] = {}
@@ -228,7 +229,8 @@ class PatientService:
             consultation_type=appointment.consultation_type,
             status=appointment.status,
             reason=appointment.reason,
-            is_teleconsultation=appointment.consultation_type == ConsultationTypeEnum.TELECONSULTATION
+            is_teleconsultation=appointment.consultation_type == ConsultationTypeEnum.TELECONSULTATION,
+            meet_link=appointment.meet_link
         )
 
     @staticmethod
@@ -466,6 +468,12 @@ class PatientService:
                 price=doctor.consultation_price,
             )
             db.add(appointment)
+            db.flush()  # Flush to get the ID before generating meet link
+            
+            # Générer le lien de téléconsultation si nécessaire
+            if TeleconsultationService.should_generate_meet_link(consultation_type):
+                appointment.meet_link = TeleconsultationService.generate_meet_link(appointment)
+            
             db.commit()
         except Exception:
             db.rollback()
@@ -620,6 +628,14 @@ class PatientService:
                 appointment.reason = data["reason"]
             if "patient_notes" in data:
                 appointment.patient_notes = data["patient_notes"]
+            
+            # Générer ou mettre à jour le lien de téléconsultation si nécessaire
+            if TeleconsultationService.should_generate_meet_link(new_consultation_type):
+                if not appointment.meet_link:  # Générer uniquement si pas déjà présent
+                    appointment.meet_link = TeleconsultationService.generate_meet_link(appointment)
+            else:
+                # Supprimer le lien si le type change et n'est plus une téléconsultation
+                appointment.meet_link = None
 
             db.commit()
         except Exception:

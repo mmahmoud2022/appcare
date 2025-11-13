@@ -164,6 +164,7 @@ class Appointment(Base):
     appointment_date = Column(DateTime(timezone=True), nullable=False, index=True)
     duration = Column(Integer, default=30)  # en minutes
     consultation_type = Column(Enum(ConsultationTypeEnum, values_callable=lambda x: [e.value for e in x]), nullable=False)
+    meet_link = Column(String(500), nullable=True)  # Lien de téléconsultation (Jitsi Meet)
     
     # Motif et notes
     reason = Column(Text, nullable=True)
