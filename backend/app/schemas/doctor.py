@@ -225,6 +225,8 @@ class AppointmentBase(BaseModel):
     consultation_type: ConsultationTypeEnum
     reason: Optional[str] = None
     patient_notes: Optional[str] = None
+    # Optional generated meeting link for teleconsultations
+    meet_link: Optional[str] = None
 
 
 class AppointmentCreate(AppointmentBase):
@@ -278,6 +280,8 @@ class AppointmentResponse(AppointmentBase):
     # Informations médecin (pour le patient)
     doctor_first_name: Optional[str] = None
     doctor_last_name: Optional[str] = None
+    # Generated meeting link (if any)
+    meet_link: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -307,9 +311,9 @@ class ReviewResponse(ReviewBase):
     is_public: bool
     created_at: datetime
     
-    # Informations patient
-    patient_first_name: str
-    patient_last_name: str
+    # Informations patient (optionnelles ici — enrichies par l'endpoint)
+    patient_first_name: Optional[str] = None
+    patient_last_name: Optional[str] = None
 
     class Config:
         from_attributes = True

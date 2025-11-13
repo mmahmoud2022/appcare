@@ -100,6 +100,7 @@ class PatientAppointmentResponse(PatientAppointmentSummary):
     doctor_notes: Optional[str]
     duration: int
     price: Optional[float]
+    meet_link: Optional[str] = None
 
 
 class PatientAppointmentListResponse(BaseModel):

@@ -13,6 +13,7 @@
   import PatientDashboard from './routes/patients/PatientDashboard.svelte';
   import DoctorRegister from './routes/doctors/DoctorRegister.svelte';
   import DoctorDashboard from './routes/doctors/DoctorDashboard.svelte';
+  import DoctorAppointments from './routes/doctors/DoctorAppointments.svelte';
   import AdminLogin from './routes/admin/Login.svelte';
   import AdminRegister from './routes/admin/Register.svelte';
   import AdminDashboard from './routes/admin/AdminDashboard.svelte';
@@ -21,6 +22,8 @@
   import ResetPassword from './routes/ResetPassword.svelte';
 
   let currentPath = '/';
+  let componentProps = {};
+  let component: any = Home;
 
   // Subscribe to route changes
   router.subscribe(path => {
@@ -32,26 +35,34 @@
     authStore.init();
   });
 
-  // Simple route matching
-  $: component = (() => {
-    if (currentPath === '/') return Home;
-    if (currentPath === '/login') return Login;
-    if (currentPath === '/register/patient') return PatientRegister;
-    if (currentPath === '/register/doctor') return DoctorRegister;
-    if (currentPath === '/patients/dashboard') return PatientDashboard;
-    if (currentPath === '/doctors/dashboard') return DoctorDashboard;
-    if (currentPath === '/admin/login') return AdminLogin;
-    if (currentPath === '/admin/register') return AdminRegister;
-    if (currentPath === '/admin' || currentPath === '/admin/dashboard') return AdminDashboard;
-    if (currentPath === '/verify-email' || currentPath.startsWith('/verify-email?')) return VerifyEmail;
-    if (currentPath === '/forgot-password') return RequestPasswordReset;
-    if (currentPath === '/reset-password' || currentPath.startsWith('/reset-password?')) return ResetPassword;
-    return Home; // Default fallback
-  })();
+  // Simple route matching with dynamic support for appointment details
+  $: {
+    componentProps = {};
+    if (currentPath === '/') component = Home;
+    else if (currentPath === '/login') component = Login;
+    else if (currentPath === '/register/patient') component = PatientRegister;
+    else if (currentPath === '/register/doctor') component = DoctorRegister;
+    else if (currentPath === '/patients/dashboard') component = PatientDashboard;
+    else if (currentPath === '/doctors/dashboard') component = DoctorDashboard;
+    else if (currentPath === '/doctors/appointments') component = DoctorAppointments;
+    else if (currentPath.startsWith('/doctors/appointments/')) {
+      component = DoctorAppointments;
+      const parts = currentPath.split('/');
+      const id = parts[parts.length - 1];
+      componentProps = { appointmentId: id };
+    }
+    else if (currentPath === '/admin/login') component = AdminLogin;
+    else if (currentPath === '/admin/register') component = AdminRegister;
+    else if (currentPath === '/admin' || currentPath === '/admin/dashboard') component = AdminDashboard;
+    else if (currentPath === '/verify-email' || currentPath.startsWith('/verify-email?')) component = VerifyEmail;
+    else if (currentPath === '/forgot-password') component = RequestPasswordReset;
+    else if (currentPath === '/reset-password' || currentPath.startsWith('/reset-password?')) component = ResetPassword;
+    else component = Home; // Default fallback
+  }
 </script>
 
 <!-- Global Toast Notifications -->
 <Toast />
 
 <!-- Current Route Component -->
-<svelte:component this={component} />
+<svelte:component this={component} {...componentProps} />

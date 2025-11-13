@@ -8,6 +8,8 @@
     type AppointmentStatus 
   } from '../../lib/api-doctor';
   
+  export let appointmentId: string | null = null;
+  import { selectedAppointmentId, clearSelectedAppointment } from '../../lib/stores/ui';
   let appointments: Appointment[] = [];
   let loading = true;
   let error: string | null = null;
@@ -25,7 +27,24 @@
 
   onMount(async () => {
     await loadAppointments();
+    // If opened via route with id, show details for that appointment
+    if (appointmentId) {
+      const found = appointments.find(a => String(a.id) === String(appointmentId));
+      if (found) {
+        openDetailsModal(found);
+      }
+    }
   });
+
+  // If another component requests opening an appointment (via store), react to it.
+  $: if ($selectedAppointmentId && appointments.length) {
+    const found = appointments.find(a => String(a.id) === String($selectedAppointmentId));
+    if (found) {
+      openDetailsModal(found);
+      // clear the store so repeated actions can be handled later
+      clearSelectedAppointment();
+    }
+  }
 
   const loadAppointments = async () => {
     loading = true;

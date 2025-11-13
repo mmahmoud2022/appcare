@@ -14,15 +14,20 @@ smtpd_tls_key_file = /etc/postfix/certs/smtp.key
 smtpd_use_tls = yes
 smtpd_tls_security_level = may
 smtp_tls_security_level = may
-smtpd_tls_auth_only = yes
+smtpd_tls_auth_only = no     # ⚠️ mettre NO ici, sinon il bloque l’envoi sans AUTH
+# (tu veux accepter les mails en clair depuis ton réseau Docker, donc sans auth)
 
-# SASL authentication (optional, for future)
+# SASL authentication (désactivée)
 smtpd_sasl_auth_enable = no
 
 # Disable local delivery
 local_transport = error:local delivery disabled
 
-# Allow only authenticated clients (optional, for now open to Docker network)
+# Autoriser uniquement les clients du réseau Docker
+mynetworks = 127.0.0.0/8 [::1]/128 172.18.0.0/16
+# (remplace 172.18.0.0/16 par le subnet réel de ton sante_network, 
+# que tu peux obtenir avec : docker network inspect sante_network)
+
 smtpd_recipient_restrictions = permit_mynetworks, reject_unauth_destination
 
 # Logging

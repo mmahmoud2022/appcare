@@ -98,6 +98,8 @@ class Settings(BaseSettings):
     # Telemedicine
     VIDEO_CALL_API_KEY: Optional[str] = None
     VIDEO_CALL_API_SECRET: Optional[str] = None
+    # Base URL for generated video meeting links (defaults to Jitsi public)
+    VIDEO_CALL_BASE_URL: Optional[str] = "https://meet.jit.si"
     
     # Application URLs
     FRONTEND_URL: str = "http://localhost:3000"

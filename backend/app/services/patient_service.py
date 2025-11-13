@@ -55,6 +55,8 @@ from app.schemas.doctor import (
     DoctorAvailabilitySlot,
 )
 from app.services.doctor_service import DoctorService
+import uuid
+from app.core.config import settings
 
 
 SPECIALTY_ALIASES: Dict[str, SpecialtyEnum] = {}
@@ -467,6 +469,14 @@ class PatientService:
             )
             db.add(appointment)
             db.commit()
+            # Generate meeting link for teleconsultations
+            if consultation_type == ConsultationTypeEnum.TELECONSULTATION:
+                # Use configured base URL if provided, otherwise default to Jitsi public
+                base = getattr(settings, 'VIDEO_CALL_BASE_URL', None) or "https://meet.jit.si"
+                room_name = f"sante-{doctor.id}-{patient_id}-{uuid.uuid4().hex[:8]}"
+                appointment.meet_link = f"{base.rstrip('/')}/{room_name}"
+                db.add(appointment)
+                db.commit()
         except Exception:
             db.rollback()
             raise

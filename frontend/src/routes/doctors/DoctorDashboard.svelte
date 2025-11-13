@@ -11,6 +11,7 @@
   } from '../../lib/api-doctor';
   import { getCurrentUser } from '../../lib/api';
   import DoctorAppointments from './DoctorAppointments.svelte';
+  import { selectedAppointmentId, openAppointment } from '../../lib/stores/ui';
   import DoctorAvailability from './DoctorAvailability.svelte';
   import DoctorPatients from './DoctorPatients.svelte';
   import DoctorReviews from './DoctorReviews.svelte';
@@ -108,6 +109,34 @@
       case 'no_show': return 'Absent';
       default: return status;
     }
+  };
+
+  // Resolve patient display name from multiple possible API shapes.
+  // The API sometimes returns flattened fields on the appointment (patient_first_name,
+  // patient_last_name) or a nested `patient` object with various naming conventions
+  // (snake_case or camelCase). This helper centralizes the logic and provides a
+  // friendly fallback.
+  const getPatientDisplayName = (appointment: any) => {
+    if (!appointment) return 'Patient inconnu';
+
+    // flattened fields on appointment
+    const firstFlat = appointment.patient_first_name ?? appointment.patientFirstName ?? null;
+    const lastFlat = appointment.patient_last_name ?? appointment.patientLastName ?? null;
+    if (firstFlat || lastFlat) return `${(firstFlat || '').toString().trim()} ${(lastFlat || '').toString().trim()}`.trim() || 'Patient inconnu';
+
+    const p = appointment.patient ?? null;
+    if (!p) return 'Patient inconnu';
+
+    // nested object fields (support both snake_case and camelCase)
+    const first = p.first_name ?? p.firstName ?? p.givenName ?? null;
+    const last = p.last_name ?? p.lastName ?? p.familyName ?? null;
+    if (first || last) return `${(first || '').toString().trim()} ${(last || '').toString().trim()}`.trim();
+
+    // single field full name
+    const full = p.full_name ?? p.fullName ?? p.name ?? p.display_name ?? p.displayName ?? null;
+    if (full) return full.toString();
+
+    return 'Patient inconnu';
   };
 
   $: totalPatients = statistics
@@ -383,7 +412,7 @@
                           <div class="flex-1">
                             <div class="flex items-center gap-3 mb-3 flex-wrap">
                               <h3 class="font-semibold text-slate-900 text-lg">
-                                {appointment.patient ? `${appointment.patient.first_name} ${appointment.patient.last_name}` : 'Patient inconnu'}
+                                {getPatientDisplayName(appointment)}
                               </h3>
                               <span class="badge {getStatusBadgeClass(appointment.status)} shadow-sm">
                                 {getStatusLabel(appointment.status)}
@@ -407,7 +436,8 @@
                             </div>
                           </div>
                           <button
-                            on:click={() => navigate(`/doctors/appointments/${appointment.id}`)}
+                            on:click={() => { openAppointment(appointment.id); activeTab = 'appointments'; }}
+                            aria-label={`Voir détails du rendez-vous ${appointment.id}`}
                             class="px-5 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 hover:scale-105 flex items-center gap-2 group whitespace-nowrap"
                           >
                             Voir détails

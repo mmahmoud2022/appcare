@@ -28,7 +28,7 @@ MANIFEST
 venv/
 ENV/
 env/
-
+infrastructure/docker/postfix/certs
 # IDEs
 .vscode/
 .idea/

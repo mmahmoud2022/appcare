@@ -96,18 +96,23 @@
           </div>
           <p class="text-2xl text-gray-900 font-bold mb-3">Échec de la vérification</p>
           <p class="text-gray-700 font-medium mb-8">{error}</p>
-          <button
-            on:click={() => navigate('/login')}
-            class="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
-          >
-            <div class="absolute inset-0 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 opacity-90"></div>
-            <div class="absolute inset-0 bg-white/20 backdrop-blur-sm"></div>
-            <div class="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <span class="relative text-white drop-shadow-lg">Aller à la connexion</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="relative h-5 w-5 text-white group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-          </button>
+          <div class="flex items-center justify-center gap-4">
+            <button
+              on:click={() => navigate('/login')}
+              class="group relative inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+            >
+              <div class="absolute inset-0 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 opacity-90"></div>
+              <div class="absolute inset-0 bg-white/20 backdrop-blur-sm"></div>
+              <span class="relative text-white drop-shadow-lg">Aller à la connexion</span>
+            </button>
+
+            <button
+              on:click={() => navigate('/resend-verification')}
+              class="group relative inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-white border border-gray-200 shadow hover:shadow-md transform hover:scale-102 transition-all duration-300 overflow-hidden"
+            >
+              <span class="relative text-gray-800">Renvoyer l'email de vérification</span>
+            </button>
+          </div>
         </div>
       {/if}
     </div>

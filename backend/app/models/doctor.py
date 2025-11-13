@@ -190,6 +190,9 @@ class Appointment(Base):
     is_deleted = Column(Boolean, default=False, nullable=False, index=True)
     deleted_at = Column(DateTime(timezone=True), nullable=True)
     deleted_by = Column(Integer, nullable=True)  # ID du user qui a supprimé
+
+    # Video/teleconsultation link (meeting URL)
+    meet_link = Column(String(500), nullable=True)
     
     # Relations
     doctor = relationship("DoctorProfile", back_populates="appointments")

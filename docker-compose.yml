@@ -64,6 +64,10 @@ services:
       ALGORITHM: HS256
       ACCESS_TOKEN_EXPIRE_MINUTES: 30
       ENVIRONMENT: ${ENVIRONMENT:-development}
+      # SMTP configuration to use the local Postfix relay in Docker Compose
+      EMAIL_PROVIDER: smtp
+      SMTP_HOST: postfix_smtp
+      SMTP_PORT: 25
     ports:
       - "8000:8000"
     volumes:
@@ -237,7 +241,7 @@ services:
   #   networks:
   #     - sante_network
 
-  # Postfix SMTP Service
+  # Postfix SMTP Service (local relay)
   postfix_smtp:
     build:
       context: ./infrastructure/docker/postfix
@@ -245,13 +249,34 @@ services:
     container_name: sante_postfix_smtp
     restart: unless-stopped
     ports:
-      - "2525:25"
+      - "2525:25"    # expose 25 on host at 2525 to avoid privileged port
     networks:
       - sante_network
     volumes:
       - ./infrastructure/docker/postfix/certs:/etc/postfix/certs
     environment:
       - TZ=Europe/Paris
+      # Optional: configure relay to a real SMTP provider (fill these in and restart)
+      # RELAY_HOST=smtp.sendgrid.net
+      # RELAY_PORT=587
+      # RELAY_USER=apikey
+      # RELAY_PASSWORD=YOUR_SENDGRID_API_KEY
+      # RELAY_USE_TLS=true
+
+  # # Certbot (Let's Encrypt) - obtain and renew TLS certs for Postfix
+  # certbot:
+  #   image: certbot/certbot:2.9.0
+  #   container_name: sante_certbot
+  #   # Restart so renewal loop can run; issuance is done via docker compose run (one-off)
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./infrastructure/docker/postfix/letsencrypt:/etc/letsencrypt
+  #     - ./infrastructure/docker/postfix/certs:/etc/postfix/certs
+  #   entrypoint: ["/bin/sh", "-c", "trap exit TERM; while :; do sleep 12h & wait $${!}; certbot renew --noninteractive --agree-tos --deploy-hook 'cp /etc/letsencrypt/live/${DOMAIN:-sante-app.com}/fullchain.pem /etc/postfix/certs/smtp.crt && cp /etc/letsencrypt/live/${DOMAIN:-sante-app.com}/privkey.pem /etc/postfix/certs/smtp.key && chmod 600 /etc/postfix/certs/smtp.key'; done"]
+  #   environment:
+  #     - DOMAIN=${DOMAIN:-sante-app.com}
+  #   networks:
+  #     - sante_network
 
 volumes:
   postgres_data:
