@@ -139,6 +139,67 @@ export interface PatientMessageList {
   items: MessageResponse[];
 }
 
+export interface PatientProfile {
+  id: number;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  gender?: string;
+  date_of_birth?: string;
+  address_line1?: string;
+  address_line2?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
+  emergency_contact_name?: string;
+  emergency_contact_phone?: string;
+  emergency_contact_relationship?: string;
+  notification_preferences?: Record<string, boolean>;
+  marketing_consent?: boolean;
+  data_processing_consent?: boolean;
+  created_at: string;
+  updated_at?: string;
+  terms_accepted_at?: string;
+}
+
+export interface PatientProfileUpdatePayload {
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  gender?: string;
+  date_of_birth?: string;
+  address_line1?: string;
+  address_line2?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
+  emergency_contact_name?: string;
+  emergency_contact_phone?: string;
+  emergency_contact_relationship?: string;
+  notification_preferences?: Record<string, boolean>;
+  marketing_consent?: boolean;
+  data_processing_consent?: boolean;
+}
+
+export interface PatientDashboardNotification {
+  message: string;
+  level: string;
+  created_at: string;
+}
+
+export interface PatientDashboardSummary {
+  profile: PatientProfile;
+  upcoming_appointments: PatientAppointment[];
+  pending_payments: number;
+  unread_messages: number;
+  recent_documents: DocumentResponse[];
+  recent_prescriptions: ElectronicPrescriptionResponse[];
+  notifications: PatientDashboardNotification[];
+}
+
 // API Functions
 export const getPatientAppointments = async (page = 1, page_size = 10) => {
   const response = await axios.get(`${API_URL}/api/v1/patients/appointments`, {
@@ -222,6 +283,39 @@ export const searchDoctorsForPatient = async (params: {
 export const getPatientMessages = async (page = 1, page_size = 10): Promise<PatientMessageList> => {
   const response = await axios.get(`${API_URL}/api/v1/patients/messages`, {
     params: { page, page_size },
+    headers: getAuthHeaders(),
+  });
+  return response.data;
+};
+
+export const markMessageAsRead = async (messageId: number): Promise<void> => {
+  await axios.patch(
+    `${API_URL}/api/v1/patients/messages/${messageId}/read`,
+    {},
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+};
+
+export const getPatientProfile = async (): Promise<PatientProfile> => {
+  const response = await axios.get(`${API_URL}/api/v1/patients/me`, {
+    headers: getAuthHeaders(),
+  });
+  return response.data;
+};
+
+export const updatePatientProfile = async (
+  data: PatientProfileUpdatePayload
+): Promise<PatientProfile> => {
+  const response = await axios.patch(`${API_URL}/api/v1/patients/me`, data, {
+    headers: getAuthHeaders(),
+  });
+  return response.data;
+};
+
+export const getPatientDashboard = async (): Promise<PatientDashboardSummary> => {
+  const response = await axios.get(`${API_URL}/api/v1/patients/dashboard`, {
     headers: getAuthHeaders(),
   });
   return response.data;
