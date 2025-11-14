@@ -155,7 +155,9 @@
       await loadScheduleEntries();
     } catch (err: any) {
       console.error('Error creating schedule entry:', err);
-      alert('Erreur lors de la création de la disponibilité');
+      // Surface backend validation / error details when available to help debugging
+      const detail = err?.response?.data?.detail || err?.response?.data || err?.message;
+      alert(detail || 'Erreur lors de la création de la disponibilité');
     } finally {
       creating = false;
     }
@@ -208,7 +210,8 @@
       await loadScheduleEntries();
     } catch (err: any) {
       console.error('Error updating schedule entry:', err);
-      alert('Erreur lors de la mise à jour de la disponibilité');
+      const detail = err?.response?.data?.detail || err?.response?.data || err?.message;
+      alert(detail || 'Erreur lors de la mise à jour de la disponibilité');
     } finally {
       updating = false;
     }

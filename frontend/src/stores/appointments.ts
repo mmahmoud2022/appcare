@@ -19,11 +19,15 @@ export const upcomingAppointments = derived(
   appointments,
   ($appointments) => {
     const now = new Date();
+    // Garder les rendez-vous jusqu'à 60 minutes après leur heure de début
+    // pour permettre l'accès à la téléconsultation pendant la session
+    const cutoffTime = new Date(now.getTime() - 60 * 60 * 1000); // 60 minutes avant maintenant
+    
     return $appointments
-      .filter((appt) => 
-        new Date(appt.appointment_date) >= now && 
-        appt.status !== 'cancelled'
-      )
+      .filter((appt) => {
+        const apptDate = new Date(appt.appointment_date);
+        return apptDate >= cutoffTime && appt.status !== 'cancelled';
+      })
       .sort((a, b) => 
         new Date(a.appointment_date).getTime() - 
         new Date(b.appointment_date).getTime()
@@ -36,12 +40,19 @@ export const pastAppointments = derived(
   appointments,
   ($appointments) => {
     const now = new Date();
+    // Un rendez-vous est considéré "passé" seulement 60 minutes après son heure
+    // Cela permet de maintenir l'accès à la téléconsultation pendant la session
+    const cutoffTime = new Date(now.getTime() - 60 * 60 * 1000); // 60 minutes avant maintenant
+    
     return $appointments
-      .filter((appt) => 
-        new Date(appt.appointment_date) < now || 
-        appt.status === 'completed' || 
-        appt.status === 'cancelled'
-      )
+      .filter((appt) => {
+        const apptDate = new Date(appt.appointment_date);
+        return (
+          apptDate < cutoffTime || 
+          appt.status === 'completed' || 
+          appt.status === 'cancelled'
+        );
+      })
       .sort((a, b) => 
         new Date(b.appointment_date).getTime() - 
         new Date(a.appointment_date).getTime()

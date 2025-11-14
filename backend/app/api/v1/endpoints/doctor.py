@@ -10,7 +10,7 @@ from datetime import datetime, date, timedelta
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_role
 from app.models.user import User, UserRole
-from app.models.doctor import AppointmentStatusEnum, PaymentStatusEnum, Appointment
+from app.models.doctor import AppointmentStatusEnum, PaymentStatusEnum, Appointment, ConsultationTypeEnum
 from app.services.doctor_service import DoctorService
 from app.schemas.doctor import (
     DoctorProfileCreate,
@@ -43,6 +43,7 @@ from app.schemas.doctor import (
     PatientListResponse,
     BlockedSlotCreate,
     BlockedSlotResponse,
+    AvailableSlotResponse,
 )
 
 router = APIRouter(prefix="/doctors", tags=["doctors"])
@@ -94,7 +95,7 @@ async def get_my_doctor_profile(
 
 
 # ========== 3️⃣ Mettre à jour le profil du médecin ==========
-@router.put("/me", response_model=DoctorProfileResponse)
+@router.patch("/me", response_model=DoctorProfileResponse)
 async def update_my_doctor_profile(
     profile_data: DoctorProfileUpdate,
     current_user: User = Depends(require_role([UserRole.DOCTOR])),
@@ -853,6 +854,62 @@ async def get_doctor_schedule(
             entries = [entry for entry in entries if entry.day_of_week in days_filter]
 
     return [ScheduleEntryResponse.model_validate(entry) for entry in entries]
+
+
+# ========== AVAILABLE SLOTS (Créneaux disponibles) ==========
+
+@router.get("/{doctor_id}/available-slots", response_model=List[AvailableSlotResponse])
+async def get_doctor_available_slots(
+    doctor_id: int,
+    start_date: date = Query(..., description="Date de début de recherche (YYYY-MM-DD)"),
+    end_date: date = Query(..., description="Date de fin de recherche (YYYY-MM-DD)"),
+    consultation_type: Optional[ConsultationTypeEnum] = Query(None, description="Filtrer par type de consultation"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Obtenir les créneaux RÉELLEMENT disponibles d'un médecin.
+    
+    Cette API croise automatiquement:
+    - ✅ Les horaires récurrents configurés par le médecin
+    - ✅ Les slots bloqués (congés, absences)
+    - ✅ Les rendez-vous déjà réservés
+    - ✅ Le type de consultation (cabinet/téléconsultation)
+    
+    **Accessible par tous les utilisateurs authentifiés.**
+    
+    Exemple:
+    ```
+    GET /api/v1/doctors/1/available-slots?start_date=2025-11-15&end_date=2025-11-22
+    ```
+    
+    Retourne uniquement les créneaux `is_available=True` sauf indication contraire.
+    """
+    # Validation des dates
+    if end_date < start_date:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La date de fin doit être après la date de début"
+        )
+    
+    # Limiter la période de recherche à 30 jours max (performance)
+    if (end_date - start_date).days > 30:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La période de recherche ne peut pas dépasser 30 jours"
+        )
+    
+    # Récupérer les créneaux
+    slots = DoctorService.get_available_slots(
+        db=db,
+        doctor_id=doctor_id,
+        start_date=start_date,
+        end_date=end_date,
+        consultation_type=consultation_type.value if consultation_type else None
+    )
+    
+    # Convertir en schéma Pydantic
+    return [AvailableSlotResponse(**slot) for slot in slots]
 
 
 # ========== BLOCKED SLOTS (Créneaux bloqués) ==========

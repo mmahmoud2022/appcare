@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, createEventDispatcher } from 'svelte';
+  import { onMount, createEventDispatcher, tick } from 'svelte';
   import { fade, fly, scale, blur } from 'svelte/transition';
   import { flip } from 'svelte/animate';
   import { cubicOut, elasticOut } from 'svelte/easing';
@@ -17,8 +17,10 @@
   } from '../../lib/api-patient';
   import {
     getDoctorSchedule,
+    getDoctorAvailableSlots,
     type ConsultationType,
-    type DoctorScheduleEntry
+    type DoctorScheduleEntry,
+    type AvailableSlot
   } from '../../lib/api-doctor';
 
   // Utils imports
@@ -48,9 +50,18 @@
   
   // Components
   import BookingModal from '../../components/booking/BookingModal.svelte';
+  import RescheduleModal from '../../components/booking/RescheduleModal.svelte';
   import TeleconsultationButton from '../../components/TeleconsultationButton.svelte';
+  
+  // WebSocket
+  import { DoctorScheduleSocket, type WebSocketMessage } from '../../lib/websocket';
+  import { get } from 'svelte/store';
 
   const dispatch = createEventDispatcher();
+  
+  // WebSocket state
+  let wsClient: DoctorScheduleSocket | null = null;
+  let wsConnected = false;
   
   // Animation states
   let hoveredAppointment: number | null = null;
@@ -79,8 +90,11 @@
   let showRescheduleModal = false;
   let rescheduleSubmitting = false;
   let rescheduleAppointment: PatientAppointment | null = null;
-  let rescheduleDate = '';
   let rescheduleNotes = '';
+  let rescheduleSchedule: DoctorScheduleEntry[] = []; // 🗑️ Obsolète, remplacé par rescheduleSlotsCache
+  let rescheduleSlotsCache: SlotSuggestion[] = []; // 🆕 Cache des créneaux absolus depuis l'API
+  let rescheduleAvailabilityLoading = false;
+  let rescheduleAvailabilityError: string | null = null;
   let showConfirmCancel = false;
   let pendingCancellation: PatientAppointment | null = null;
   let showConfirmReschedule = false;
@@ -125,31 +139,141 @@
     bookingStep = 1;
   };
 
+  // 🆕 Utilise la nouvelle API /available-slots qui croise automatiquement:
+  // - Horaires récurrents du médecin
+  // - Slots bloqués (congés, absences)
+  // - Rendez-vous déjà réservés
   const loadDoctorSchedule = async (doctorId: number) => {
     availabilityLoading = true;
     availabilityError = null;
     showAllSlots = false;
+    
     try {
-      doctorSchedule = await getDoctorSchedule(doctorId);
-    } catch (err) {
-      console.error('Erreur lors du chargement des disponibilités du praticien:', err);
-      availabilityError = "Impossible de récupérer les créneaux du praticien";
-      doctorSchedule = [];
+      // Charger les créneaux pour les 30 prochains jours
+      const today = new Date();
+      const endDate = new Date(today);
+      endDate.setDate(today.getDate() + 30);
+      
+      const startDateStr = today.toISOString().split('T')[0];
+      const endDateStr = endDate.toISOString().split('T')[0];
+      
+      console.log('🔍 Chargement des créneaux disponibles:', {
+        doctorId,
+        startDate: startDateStr,
+        endDate: endDateStr,
+        consultationType: bookingPayload.consultation_type
+      });
+      
+      const availableSlots = await getDoctorAvailableSlots(
+        doctorId,
+        startDateStr,
+        endDateStr,
+        bookingPayload.consultation_type
+      );
+      
+      console.log('✅ Créneaux reçus:', availableSlots);
+      console.log('📊 Nombre de créneaux:', availableSlots?.length);
+      
+      if (!availableSlots || !Array.isArray(availableSlots)) {
+        console.error('❌ Format de réponse invalide:', availableSlots);
+        throw new Error('Format de réponse invalide du serveur');
+      }
+      
+      // Filtrer uniquement les créneaux disponibles et convertir au format SlotSuggestion
+      availableSlotsList = availableSlots.filter(slot => slot.is_available);
+      console.log('✅ Créneaux disponibles filtrés:', availableSlotsList.length);
+      
+      // Grouper les créneaux par jour
+      const groupedSlots = new Map<string, SlotSuggestion[]>();
+      
+      availableSlotsList.forEach(slot => {
+        const startDate = new Date(slot.start_time);
+        const endDate = new Date(slot.end_time);
+        const dateKey = startDate.toISOString().split('T')[0];
+        
+        const slotSuggestion: SlotSuggestion = {
+          entry: {
+            id: slot.schedule_entry_id,
+            doctor_id: slot.doctor_id,
+            day_of_week: startDate.getDay(),
+            start_time: startDate.toTimeString().slice(0, 5),
+            end_time: endDate.toTimeString().slice(0, 5),
+            consultation_type: slot.consultation_types[0] || 'IN_PERSON',
+            slot_duration: Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60)),
+            break_duration: 0,
+            location: slot.location,
+            is_active: true,
+            created_at: new Date().toISOString()
+          } as DoctorScheduleEntry,
+          start: startDate,
+          end: endDate,
+          consultation_type: slot.consultation_types[0] || 'IN_PERSON',
+          location: slot.location
+        };
+        
+        if (!groupedSlots.has(dateKey)) {
+          groupedSlots.set(dateKey, []);
+        }
+        groupedSlots.get(dateKey)!.push(slotSuggestion);
+      });
+      
+      // Convertir en format SlotSuggestionGroup
+      slotSuggestionGroups = Array.from(groupedSlots.entries()).map(([dateKey, slots]) => {
+        const firstSlot = slots[0];
+        const dateObj = firstSlot.start;
+        const dateLabel = dateObj.toLocaleDateString('fr-FR', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+        
+        return {
+          key: dateKey,
+          date: dateObj,
+          dateLabel: dateLabel,
+          label: dateLabel,
+          slots: slots.sort((a, b) => a.start.getTime() - b.start.getTime())
+        };
+      });
+      
+      console.log('📅 Groupes de créneaux créés:', slotSuggestionGroups.length);
+      
+    } catch (err: any) {
+      console.error('❌ Erreur lors du chargement des disponibilités du praticien:', err);
+      console.error('📊 Détails erreur:', {
+        message: err?.message,
+        response: err?.response?.data,
+        status: err?.response?.status,
+        url: err?.config?.url
+      });
+      
+      // Message d'erreur plus détaillé
+      if (err?.response?.status === 404) {
+        availabilityError = "Médecin non trouvé";
+      } else if (err?.response?.status === 400) {
+        availabilityError = err?.response?.data?.detail || "Paramètres invalides";
+      } else if (err?.response?.status === 500) {
+        availabilityError = "Erreur serveur. Veuillez réessayer plus tard.";
+      } else {
+        availabilityError = "Impossible de récupérer les créneaux du praticien";
+      }
+      
+      availableSlotsList = [];
+      slotSuggestionGroups = [];
     } finally {
       availabilityLoading = false;
     }
   };
 
   // Variables pour les créneaux
-  let slotSuggestions: SlotSuggestion[] = [];
+  let availableSlotsList: AvailableSlot[] = [];
   let slotSuggestionGroups: SlotSuggestionGroup[] = [];
   let visibleSlotGroups: SlotSuggestionGroup[] = [];
   let canShowMoreSlots = false;
   let showAllSlots = false;
 
-  // Reactive statements utilisant les utilitaires importés
-  $: slotSuggestions = generateSlotSuggestions(doctorSchedule, bookingPayload.consultation_type, 20, 4);
-  $: slotSuggestionGroups = groupSlotsByDay(slotSuggestions);
+  // Reactive statements
   $: visibleSlotGroups = showAllSlots ? slotSuggestionGroups : slotSuggestionGroups.slice(0, 3);
   $: canShowMoreSlots = slotSuggestionGroups.length > 3;
 
@@ -172,6 +296,9 @@
   const closeBookingModal = () => {
     showBookingModal = false;
     resetBookingForm();
+    
+    // 🆕 Déconnecter le WebSocket à la fermeture
+    disconnectWebSocket();
   };
 
   const consultationTypeOptions = (doctor: DoctorSearchResult | null): { value: ConsultationType; label: string }[] => {
@@ -211,7 +338,80 @@
       schedule_entry_id: undefined
     };
     showBookingModal = true;
-  await loadDoctorSchedule(doctor.doctor_id);
+    await loadDoctorSchedule(doctor.doctor_id);
+    
+    // 🆕 Connecter au WebSocket pour écouter les mises à jour en temps réel
+    await connectWebSocket(doctor.doctor_id);
+  };
+  
+  /**
+   * 🆕 Établir connexion WebSocket pour synchronisation temps réel
+   */
+  const connectWebSocket = async (doctorId: number) => {
+    try {
+      // Récupérer le token JWT
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        console.warn('⚠️ Pas de token JWT - WebSocket désactivé');
+        return;
+      }
+      
+      // Fermer connexion existante si présente
+      if (wsClient) {
+        wsClient.disconnect();
+        wsClient = null;
+      }
+      
+      // Créer nouveau client WebSocket
+      wsClient = new DoctorScheduleSocket(doctorId, token);
+      
+      // Écouter l'événement de connexion
+      wsClient.on('connected', (message: WebSocketMessage) => {
+        console.log('✅ WebSocket connecté:', message);
+        wsConnected = true;
+      });
+      
+      // Écouter les mises à jour de planning
+      wsClient.on('schedule_updated', async (message: WebSocketMessage) => {
+        console.log('📅 Planning mis à jour par le médecin:', message);
+        toast.info('Planning mis à jour - Actualisation...');
+        await loadDoctorSchedule(doctorId);
+      });
+      
+      // Écouter les réservations de créneaux
+      wsClient.on('slot_booked', async (message: WebSocketMessage) => {
+        console.log('🎯 Créneau réservé:', message);
+        toast.warning('Un créneau a été réservé - Actualisation...');
+        await loadDoctorSchedule(doctorId);
+      });
+      
+      // Écouter les annulations
+      wsClient.on('appointment_cancelled', async (message: WebSocketMessage) => {
+        console.log('❌ Rendez-vous annulé:', message);
+        toast.info('Un rendez-vous a été annulé - Actualisation...');
+        await loadDoctorSchedule(doctorId);
+      });
+      
+      // Connecter
+      await wsClient.connect();
+      
+    } catch (error) {
+      console.error('❌ Erreur connexion WebSocket:', error);
+      wsConnected = false;
+      // Ne pas bloquer l'interface si WebSocket échoue
+    }
+  };
+  
+  /**
+   * 🆕 Déconnecter le WebSocket
+   */
+  const disconnectWebSocket = () => {
+    if (wsClient) {
+      console.log('🔌 Déconnexion WebSocket...');
+      wsClient.disconnect();
+      wsClient = null;
+      wsConnected = false;
+    }
   };
 
   const formatAppointmentLabel = (appointment: PatientAppointment) => {
@@ -258,29 +458,206 @@
     }
   };
 
-  const openRescheduleModal = (appointment: PatientAppointment) => {
+  let rescheduleDoctorDetails: DoctorSearchResult | null = null;
+
+  const openRescheduleModal = async (appointment: PatientAppointment) => {
+    if (!appointment?.doctor_id) {
+      console.error('❌ Impossible de replanifier: doctor_id manquant sur le rendez-vous', appointment);
+      toast.error("Ce rendez-vous n'est pas associé à un praticien valide");
+      return;
+    }
+
     rescheduleAppointment = appointment;
-    rescheduleDate = appointment.appointment_date.slice(0, 16);
     rescheduleNotes = appointment.patient_notes ?? '';
+    rescheduleSchedule = [];
+    rescheduleAvailabilityError = null;
     showRescheduleModal = true;
     showConfirmReschedule = false;
+
+    // Récupérer les détails du médecin pour connaître les types de consultation disponibles
+    try {
+      // Essayer de trouver le médecin dans selectedDoctor ou faire une recherche
+      if (selectedDoctor && selectedDoctor.doctor_id === appointment.doctor_id) {
+        rescheduleDoctorDetails = selectedDoctor;
+      } else {
+        // Simuler un objet doctor avec consultation_types 'both' par défaut
+        // Dans une vraie application, on devrait faire un appel API pour récupérer les détails
+        rescheduleDoctorDetails = {
+          doctor_id: appointment.doctor_id,
+          first_name: appointment.doctor_first_name || '',
+          last_name: appointment.doctor_last_name || '',
+          specialty: 'general',
+          consultation_types: 'both',
+          location: '',
+          average_rating: 0,
+          total_reviews: 0,
+          consultation_duration: 30,
+          languages: [],
+          accepts_new_patients: true
+        } as DoctorSearchResult;
+      }
+    } catch (error) {
+      console.warn('⚠️ Impossible de récupérer les détails du médecin, utilisation des valeurs par défaut');
+      rescheduleDoctorDetails = null;
+    }
+
+    // Charger les créneaux dans une micro-tâche pour laisser la modal s'afficher instantanément
+    Promise.resolve().then(async () => {
+      try {
+        await tick();
+        await loadRescheduleSchedule(appointment.doctor_id, appointment.consultation_type);
+      } catch (error) {
+        console.error('❌ Erreur lors du chargement des créneaux pour la replanification:', error);
+        toast.error("Impossible de récupérer les créneaux du praticien");
+      }
+    });
   };
 
-  const submitReschedule = async () => {
-    if (!rescheduleAppointment || !rescheduleDate) return;
-    rescheduleSubmitting = true;
+  // 🆕 Utilise également la nouvelle API /available-slots pour la replanification
+  const loadRescheduleSchedule = async (doctorId: number, consultationType: ConsultationType) => {
+    rescheduleAvailabilityLoading = true;
+    rescheduleAvailabilityError = null;
+    
+    // 🧹 Réinitialiser le cache des créneaux avant rechargement
+    rescheduleSlotsCache = [];
+    rescheduleSchedule = [];
+    
     try {
-      await updatePatientAppointment(rescheduleAppointment.id, {
-        appointment_date: new Date(rescheduleDate).toISOString(),
-        patient_notes: rescheduleNotes || undefined
+      // Charger les créneaux pour les 30 prochains jours
+      const today = new Date();
+      const endDate = new Date(today);
+      endDate.setDate(today.getDate() + 30);
+      
+      const startDateStr = today.toISOString().split('T')[0];
+      const endDateStr = endDate.toISOString().split('T')[0];
+      
+      console.log('🔍 Chargement des créneaux pour replanification:', {
+        doctorId,
+        startDate: startDateStr,
+        endDate: endDateStr,
+        consultationType: consultationType
       });
+      
+      const availableSlots = await getDoctorAvailableSlots(
+        doctorId,
+        startDateStr,
+        endDateStr,
+        consultationType
+      );
+      
+      console.log('✅ Créneaux de replanification reçus:', availableSlots?.length);
+      
+      if (!availableSlots || !Array.isArray(availableSlots)) {
+        console.error('❌ Format de réponse invalide:', availableSlots);
+        throw new Error('Format de réponse invalide du serveur');
+      }
+      
+      // ⚠️ Ne plus filtrer - garder TOUS les créneaux (disponibles et non disponibles)
+      // pour afficher les créneaux bloqués en rouge/rayé
+      
+      // 🆕 Convertir directement en SlotSuggestion[] au lieu de DoctorScheduleEntry[]
+      // car l'API retourne des créneaux absolus (avec dates), pas des créneaux récurrents
+      rescheduleSlotsCache = availableSlots.map(slot => {
+        const startDate = new Date(slot.start_time);
+        const endDate = new Date(slot.end_time);
+        
+        return {
+          entry: {
+            id: slot.schedule_entry_id,
+            doctor_id: slot.doctor_id,
+            day_of_week: startDate.getDay(),
+            start_time: startDate.toTimeString().slice(0, 5),
+            end_time: endDate.toTimeString().slice(0, 5),
+            consultation_type: slot.consultation_types[0] || 'in_person',
+            slot_duration: Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60)),
+            break_duration: 0,
+            location: slot.location,
+            created_at: new Date().toISOString()
+          },
+          start: startDate,
+          end: endDate,
+          consultation_type: slot.consultation_types[0] || 'in_person',
+          location: slot.location,
+          is_available: slot.is_available
+        };
+      });
+      
+      // Garder un tableau vide pour rescheduleSchedule (plus utilisé)
+      rescheduleSchedule = [];
+      
+      console.log('✅ Créneaux de replanification convertis:', rescheduleSlotsCache.length);
+      console.log('📋 Premiers créneaux:', rescheduleSlotsCache.slice(0, 3).map(s => ({
+        start: s.start.toISOString(),
+        end: s.end.toISOString(),
+        type: s.consultation_type,
+        available: s.is_available
+      })));
+      
+    } catch (err: any) {
+      console.error('❌ Erreur lors du chargement des disponibilités:', err);
+      console.error('📊 Détails erreur:', {
+        message: err?.message,
+        response: err?.response?.data,
+        status: err?.response?.status
+      });
+      
+      if (err?.response?.status === 404) {
+        rescheduleAvailabilityError = "Médecin non trouvé";
+      } else if (err?.response?.status === 400) {
+        rescheduleAvailabilityError = err?.response?.data?.detail || "Paramètres invalides";
+      } else {
+        rescheduleAvailabilityError = "Impossible de récupérer les créneaux du praticien";
+      }
+      
+      // 🧹 Vider les caches en cas d'erreur
+      rescheduleSchedule = [];
+      rescheduleSlotsCache = [];
+    } finally {
+      rescheduleAvailabilityLoading = false;
+    }
+  };
+
+  // submitReschedule est appelé par le RescheduleModal quand on clique sur "Replanifier"
+  // Il affiche l'écran de confirmation DANS le RescheduleModal
+  const submitReschedule = async () => {
+    if (!rescheduleAppointment) return;
+    showConfirmReschedule = true;
+  };
+
+  // confirmReschedule est appelé par le RescheduleModal quand on clique sur "Confirmer la modification"
+  // dans l'écran de confirmation intégré
+  const confirmReschedule = async () => {
+    if (!rescheduleAppointment) return;
+    rescheduleSubmitting = true;
+    
+    console.log('🔧 DEBUG - confirmReschedule called');
+    console.log('📅 Appointment ID:', rescheduleAppointment.id);
+    console.log('📅 New appointment_date:', rescheduleAppointment.appointment_date);
+    console.log('� New consultation_type:', rescheduleAppointment.consultation_type);
+    console.log('�📝 Notes:', rescheduleNotes);
+    
+    try {
+      const updateData = {
+        appointment_date: rescheduleAppointment.appointment_date,
+        consultation_type: rescheduleAppointment.consultation_type,
+        patient_notes: rescheduleNotes || undefined
+      };
+      console.log('📤 Sending update request with data:', updateData);
+      
+      const result = await updatePatientAppointment(rescheduleAppointment.id, updateData);
+      console.log('✅ Update successful:', result);
+      
       toast.success('Rendez-vous replanifié avec succès');
       showRescheduleModal = false;
+      showConfirmReschedule = false;
       rescheduleAppointment = null;
+      rescheduleNotes = '';
       await loadAppointments();
       dispatch('refresh');
     } catch (err: any) {
-      console.error('Erreur lors du report du rendez-vous:', err);
+      console.error('❌ Erreur lors du report du rendez-vous:', err);
+      console.error('📊 Error response:', err?.response?.data);
+      console.error('📊 Error status:', err?.response?.status);
       toast.error(err?.response?.data?.detail ?? "Impossible de replanifier ce rendez-vous");
     } finally {
       rescheduleSubmitting = false;
@@ -517,30 +894,30 @@
                 <!-- 3D Card Effect -->
                 <div class={`relative transform transition-all duration-500 preserve-3d ${hoveredAppointment === appointment.id ? 'rotate-y-5 scale-105' : ''}`}>
                   <!-- Glow effect -->
-                  <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur opacity-25 group-hover:opacity-75 transition-opacity duration-500"></div>
+                  <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur opacity-25 group-hover:opacity-75 transition-opacity duration-500 -z-10"></div>
                   
                   <!-- Main Card -->
-                  <div class="relative bg-white rounded-3xl p-8 shadow-2xl border-2 border-gray-100 overflow-hidden">
+                  <div class="relative bg-white rounded-3xl p-8 shadow-2xl border-2 border-gray-100 overflow-hidden z-10">
                     <!-- Animated background pattern -->
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 group-hover:scale-150 transition-transform duration-1000 pointer-events-none"></div>
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 group-hover:scale-150 transition-transform duration-1000 -z-10"></div>
                     
                     <!-- Status badge with animation -->
-                    <div class="absolute top-6 right-6 z-20">
+                    <div class="absolute top-6 right-6 z-20 pointer-events-none">
                       <div class={`relative px-4 py-2 rounded-full font-bold text-sm shadow-lg transform transition-transform duration-300 ${
                         appointment.status === 'confirmed' 
                           ? 'bg-gradient-to-r from-green-400 to-emerald-600 text-white group-hover:scale-110' 
                           : 'bg-gradient-to-r from-blue-400 to-indigo-600 text-white group-hover:scale-110'
                       }`}>
-                        <div class="absolute inset-0 rounded-full bg-white/20 animate-ping"></div>
+                        <div class="absolute inset-0 rounded-full bg-white/20 animate-ping pointer-events-none"></div>
                         <span class="relative">
                           {appointment.status === 'confirmed' ? '✓ Confirmé' : '⏱ En attente'}
                         </span>
                       </div>
                     </div>
                     
-                    <div class="relative z-20">
+                    <div class="relative z-30">
                       <!-- Doctor info with avatar -->
-                      <div class="flex items-start gap-4 mb-6">
+                      <div class="flex items-start gap-4 mb-6 relative">
                         <div class="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-xl transform group-hover:rotate-12 transition-transform duration-500">
                           {appointment.doctor_first_name?.[0]}{appointment.doctor_last_name?.[0]}
                         </div>
@@ -577,13 +954,35 @@
 
                       <!-- Consultation type badge -->
                       <div class="mb-6">
-                        <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border-2 border-indigo-200">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                          </svg>
-                          <span class="font-bold text-indigo-700">
-                            {CONSULTATION_LABELS[appointment.consultation_type]}
-                          </span>
+                        <div class={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 ${
+                          appointment.consultation_type === 'teleconsultation' 
+                            ? 'bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200'
+                            : appointment.consultation_type === 'both'
+                            ? 'bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200'
+                            : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200'
+                        }`}>
+                          {#if appointment.consultation_type === 'teleconsultation'}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            <span class="font-bold text-emerald-700">
+                              {CONSULTATION_LABELS[appointment.consultation_type]}
+                            </span>
+                          {:else if appointment.consultation_type === 'both'}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                            </svg>
+                            <span class="font-bold text-purple-700">
+                              {CONSULTATION_LABELS[appointment.consultation_type]}
+                            </span>
+                          {:else}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                            <span class="font-bold text-blue-700">
+                              {CONSULTATION_LABELS[appointment.consultation_type]}
+                            </span>
+                          {/if}
                         </div>
                       </div>
 
@@ -613,14 +1012,13 @@
                         </div>
                       {/if}
 
-                      <!-- Action buttons with hover effects -->
-                      <div class="flex gap-3">
+                      <!-- Action buttons -->
+                      <div class="flex gap-3 relative z-40">
                         <button
-                          on:click={() => openRescheduleModal(appointment)}
-                          class="group/btn flex-1 relative overflow-hidden px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl font-bold shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 active:scale-95 z-10"
+                          on:click|stopPropagation={() => openRescheduleModal(appointment)}
+                          class="flex-1 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors shadow-sm hover:shadow-md"
                         >
-                          <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-700 opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none"></div>
-                          <span class="relative flex items-center justify-center gap-2">
+                          <span class="flex items-center justify-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
@@ -628,11 +1026,10 @@
                           </span>
                         </button>
                         <button
-                          on:click={() => promptCancelAppointment(appointment)}
-                          class="group/btn flex-1 relative overflow-hidden px-6 py-4 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-2xl font-bold shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 active:scale-95 z-10"
+                          on:click|stopPropagation={() => promptCancelAppointment(appointment)}
+                          class="flex-1 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors shadow-sm hover:shadow-md"
                         >
-                          <div class="absolute inset-0 bg-gradient-to-r from-red-600 to-pink-700 opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none"></div>
-                          <span class="relative flex items-center justify-center gap-2">
+                          <span class="flex items-center justify-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
@@ -738,9 +1135,19 @@
                                 Dr. {appointment.doctor_first_name} {appointment.doctor_last_name}
                               </h4>
                               <p class="text-sm text-gray-600 font-semibold capitalize flex items-center gap-1.5">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                </svg>
+                                {#if appointment.consultation_type === 'teleconsultation'}
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                  </svg>
+                                {:else if appointment.consultation_type === 'both'}
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                                  </svg>
+                                {:else}
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                  </svg>
+                                {/if}
                                 {CONSULTATION_LABELS[appointment.consultation_type]}
                               </p>
                             </div>
@@ -853,6 +1260,7 @@
     {showAllSlots}
     {availabilityLoading}
     {availabilityError}
+    {wsConnected}
     {bookingPayload}
     {bookingSubmitting}
     onClose={closeBookingModal}
@@ -860,6 +1268,7 @@
     onRefreshSlots={() => selectedDoctor && loadDoctorSchedule(selectedDoctor.doctor_id)}
     onSubmit={submitBooking}
     onToggleShowAllSlots={() => showAllSlots = !showAllSlots}
+    onConsultationTypeChange={() => selectedDoctor && loadDoctorSchedule(selectedDoctor.doctor_id)}
     {consultationTypeOptions}
   />
 {:else if showBookingModal}
@@ -901,137 +1310,26 @@
   </div>
 {/if}
 
-{#if showRescheduleModal && rescheduleAppointment}
-  <div class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4" transition:fade={{ duration: 200 }}>
-    <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden border-2 border-gray-100" transition:fly={{ y: 30, duration: 300, easing: elasticOut }}>
-      <!-- Enhanced Header -->
-      <div class="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-8">
-        <div class="absolute inset-0 bg-grid-white/10"></div>
-        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
-        <div class="relative flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border-2 border-white/30">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-2xl font-black text-white drop-shadow-lg">Replanifier le rendez-vous</h3>
-              <p class="text-white/90 font-medium">Choisissez une nouvelle date</p>
-            </div>
-          </div>
-          <button 
-            on:click={() => showRescheduleModal = false} 
-            class="w-12 h-12 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl flex items-center justify-center transition-all border-2 border-white/30 hover:border-white/50 group"
-            title="Fermer"
-          >
-            <svg class="h-6 w-6 text-white group-hover:rotate-90 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      </div>
-      
-      <!-- Content -->
-      <div class="p-8 space-y-6">
-        <!-- Current Appointment Info -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border-2 border-amber-200">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-200/30 to-orange-200/30 rounded-full blur-2xl -mr-16 -mt-16"></div>
-          <div class="relative">
-            <div class="flex items-center gap-3 mb-3">
-              <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h4 class="text-lg font-black text-gray-900">Rendez-vous actuel</h4>
-            </div>
-            <p class="text-gray-700 font-semibold">{formatAppointmentLabel(rescheduleAppointment)}</p>
-          </div>
-        </div>
-        
-        <!-- New Date Input -->
-        <div class="space-y-2">
-          <label for="reschedule-datetime" class="flex items-center gap-2 text-sm font-bold text-gray-900">
-            <div class="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            Nouvelle date et heure
-          </label>
-          <input
-            id="reschedule-datetime"
-            type="datetime-local"
-            bind:value={rescheduleDate}
-            class="w-full px-4 py-3.5 border-2 border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-medium bg-white hover:border-blue-400 shadow-sm"
-          />
-        </div>
-        
-        <!-- Notes Input -->
-        <div class="space-y-2">
-          <label for="reschedule-notes" class="flex items-center gap-2 text-sm font-bold text-gray-900">
-            <div class="w-6 h-6 bg-gradient-to-br from-purple-500 to-fuchsia-600 rounded-lg flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </div>
-            Notes pour le praticien
-            <span class="text-gray-500 font-normal text-xs ml-auto">(optionnel)</span>
-          </label>
-          <textarea
-            id="reschedule-notes"
-            rows="4"
-            bind:value={rescheduleNotes}
-            class="w-full px-4 py-3.5 border-2 border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-medium resize-none bg-white hover:border-blue-400 shadow-sm placeholder-gray-400"
-            placeholder="Raison du changement, nouvelles informations..."
-          ></textarea>
-        </div>
-      </div>
-      
-      <!-- Footer -->
-      <div class="px-8 py-6 border-t-2 border-gray-200 flex gap-4 bg-gradient-to-r from-blue-50/30 via-indigo-50/30 to-purple-50/30">
-        <button
-          on:click={() => showRescheduleModal = false}
-          class="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 font-bold rounded-2xl hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm hover:shadow-md"
-          disabled={rescheduleSubmitting}
-        >
-          <span class="flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            Annuler
-          </span>
-        </button>
-        <button
-          on:click={() => showConfirmReschedule = true}
-          class="group relative flex-[2] px-6 py-4 rounded-2xl font-black shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all overflow-hidden transform hover:scale-105 active:scale-95"
-          disabled={rescheduleSubmitting}
-        >
-          <div class="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 opacity-90"></div>
-          <div class="absolute inset-0 bg-white/10"></div>
-          <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          <span class="relative flex items-center justify-center gap-3 text-white drop-shadow-lg">
-            {#if rescheduleSubmitting}
-              <svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Validation...
-            {:else}
-              <div class="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <span class="text-lg">Replanifier</span>
-            {/if}
-          </span>
-        </button>
-      </div>
-    </div>
-  </div>
-{/if}
+<!-- Reschedule Modal -->
+<RescheduleModal
+  show={showRescheduleModal}
+  appointment={rescheduleAppointment}
+  doctorSchedule={rescheduleSchedule}
+  slotsCache={rescheduleSlotsCache}
+  availabilityLoading={rescheduleAvailabilityLoading}
+  availabilityError={rescheduleAvailabilityError}
+  doctorDetails={rescheduleDoctorDetails}
+  bind:rescheduleNotes
+  submitting={rescheduleSubmitting}
+  showConfirm={showConfirmReschedule}
+  onClose={() => showRescheduleModal = false}
+  onLoadSchedule={loadRescheduleSchedule}
+  onSubmit={submitReschedule}
+  onConfirm={confirmReschedule}
+  onBack={() => showConfirmReschedule = false}
+/>
+
+<!-- Cancel Confirmation Modal -->
 
 {#if showConfirmCancel && pendingCancellation}
   <div class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4" transition:fade={{ duration: 200 }}>
@@ -1129,123 +1427,6 @@
               </svg>
             </div>
             <span class="text-lg">Oui, annuler le rendez-vous</span>
-          </span>
-        </button>
-      </div>
-    </div>
-  </div>
-{/if}
-
-{#if showConfirmReschedule && rescheduleAppointment}
-  <div class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[60] p-4" transition:fade={{ duration: 200 }}>
-    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border-2 border-gray-100" transition:scale={{ duration: 300, easing: elasticOut }}>
-      <!-- Enhanced Header -->
-      <div class="relative overflow-hidden bg-gradient-to-br from-green-600 via-emerald-600 to-teal-700 p-8">
-        <div class="absolute inset-0 bg-grid-white/10"></div>
-        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
-        <div class="relative flex items-center gap-4">
-          <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div>
-            <h3 class="text-2xl font-black text-white drop-shadow-lg">Confirmer la modification</h3>
-            <p class="text-white/90 font-medium">Vérifiez les informations</p>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Content -->
-      <div class="p-8 space-y-6">
-        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border-2 border-blue-200">
-          <div class="flex items-start gap-4">
-            <div class="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div class="flex-1">
-              <h4 class="text-sm font-bold text-blue-700 uppercase tracking-wide mb-2">Rendez-vous actuel</h4>
-              <p class="text-gray-700 font-semibold">{formatAppointmentLabel(rescheduleAppointment)}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="flex items-center justify-center">
-          <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg animate-bounce">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </div>
-        </div>
-        
-        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-300">
-          <div class="flex items-start gap-4">
-            <div class="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div class="flex-1">
-              <h4 class="text-sm font-bold text-green-700 uppercase tracking-wide mb-2">Nouvelle date</h4>
-              <p class="text-2xl font-black text-gray-900">{new Date(rescheduleDate).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
-              <p class="text-xl font-bold text-green-600 mt-1">{new Date(rescheduleDate).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border-2 border-amber-200">
-          <div class="flex items-start gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p class="text-sm text-amber-900 font-semibold">Le praticien sera notifié de ce changement par email</p>
-          </div>
-        </div>
-        
-        <p class="text-center text-gray-600 font-semibold">Confirmez-vous cette modification ?</p>
-      </div>
-      
-      <!-- Footer -->
-      <div class="px-8 py-6 border-t-2 border-gray-200 flex gap-4 bg-gradient-to-r from-green-50/30 via-emerald-50/30 to-teal-50/30">
-        <button
-          class="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 font-bold rounded-2xl hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm hover:shadow-md"
-          on:click={() => showConfirmReschedule = false}
-        >
-          <span class="flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Retour
-          </span>
-        </button>
-        <button
-          class="group relative flex-[2] px-6 py-4 rounded-2xl font-black shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all overflow-hidden transform hover:scale-105 active:scale-95"
-          on:click={() => {
-            showConfirmReschedule = false;
-            void submitReschedule();
-          }}
-          disabled={rescheduleSubmitting}
-        >
-          <div class="absolute inset-0 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-700 opacity-90"></div>
-          <div class="absolute inset-0 bg-white/10"></div>
-          <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          <span class="relative flex items-center justify-center gap-3 text-white drop-shadow-lg">
-            {#if rescheduleSubmitting}
-              <svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Modification...
-            {:else}
-              <div class="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span class="text-lg">Confirmer la modification</span>
-            {/if}
           </span>
         </button>
       </div>

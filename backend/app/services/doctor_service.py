@@ -198,7 +198,7 @@ class DoctorService:
         if window_minutes <= 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="L'heure de fin doit être après l'heure de début"
+                detail=f"L'heure de fin ({end_time}) doit être après l'heure de début ({start_time})"
             )
         if slot_duration > window_minutes:
             raise HTTPException(
@@ -341,6 +341,138 @@ class DoctorService:
         return db.query(DoctorScheduleEntry).filter(
             DoctorScheduleEntry.doctor_id == doctor_id
         ).order_by(DoctorScheduleEntry.day_of_week, DoctorScheduleEntry.start_time).all()
+
+    @staticmethod
+    def get_available_slots(
+        db: Session,
+        doctor_id: int,
+        start_date: date,
+        end_date: date,
+        consultation_type: Optional[str] = None
+    ) -> List[dict]:
+        """
+        Génère les créneaux disponibles en croisant:
+        1. Horaires récurrents (DoctorScheduleEntry)
+        2. Slots bloqués (DoctorBlockedSlot)
+        3. Rendez-vous existants (Appointment)
+        
+        Args:
+            doctor_id: ID du médecin
+            start_date: Date de début de recherche
+            end_date: Date de fin de recherche
+            consultation_type: Filtre optionnel par type (IN_PERSON, TELECONSULTATION)
+        
+        Returns:
+            Liste de dictionnaires représentant les créneaux disponibles
+        """
+        # 1. Vérifier que le médecin existe
+        doctor = db.query(DoctorProfile).filter(DoctorProfile.id == doctor_id).first()
+        if not doctor:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Médecin non trouvé"
+            )
+        
+        # 2. Récupérer les entrées de planning
+        schedule_entries = db.query(DoctorScheduleEntry).filter(
+            DoctorScheduleEntry.doctor_id == doctor_id
+        ).all()
+        
+        # Filtrer par type de consultation si spécifié
+        if consultation_type:
+            filtered_entries = []
+            for entry in schedule_entries:
+                # entry.consultation_type peut être "IN_PERSON", "TELECONSULTATION" ou "BOTH"
+                if entry.consultation_type == "BOTH":
+                    filtered_entries.append(entry)
+                elif entry.consultation_type == consultation_type:
+                    filtered_entries.append(entry)
+            schedule_entries = filtered_entries
+        
+        # 3. Récupérer les slots bloqués dans la période
+        # Créer des datetimes timezone-aware pour la comparaison avec la DB
+        start_datetime = datetime.combine(start_date, time.min).replace(tzinfo=timezone.utc)
+        end_datetime = datetime.combine(end_date, time.max).replace(tzinfo=timezone.utc)
+        
+        blocked_slots = db.query(DoctorBlockedSlot).filter(
+            DoctorBlockedSlot.doctor_id == doctor_id,
+            DoctorBlockedSlot.start_datetime < end_datetime,
+            DoctorBlockedSlot.end_datetime > start_datetime
+        ).all()
+        
+        # 4. Récupérer les rendez-vous existants (statuts PENDING ou CONFIRMED)
+        appointments = db.query(Appointment).filter(
+            Appointment.doctor_id == doctor_id,
+            Appointment.appointment_date >= start_datetime,
+            Appointment.appointment_date <= end_datetime,
+            Appointment.status.in_([AppointmentStatusEnum.PENDING, AppointmentStatusEnum.CONFIRMED])
+        ).all()
+        
+        # 5. Générer tous les créneaux possibles
+        slots = []
+        current_date = start_date
+        
+        while current_date <= end_date:
+            # Convertir jour Python (Monday=0) vers format DB (Sunday=0)
+            day_of_week = (current_date.weekday() + 1) % 7
+            
+            # Trouver les entrées de planning pour ce jour
+            day_entries = [e for e in schedule_entries if e.day_of_week == day_of_week]
+            
+            for entry in day_entries:
+                # Déterminer les types de consultation disponibles pour ce créneau
+                if entry.consultation_type == "BOTH":
+                    slot_consultation_types = ["IN_PERSON", "TELECONSULTATION"]
+                else:
+                    slot_consultation_types = [entry.consultation_type]
+                
+                # Générer les slots pour cette entrée
+                slot_start_time = entry.start_time
+                duration_minutes = entry.slot_duration or 30
+                
+                while slot_start_time < entry.end_time:
+                    # Créer le datetime du slot (timezone-aware pour compatibilité DB)
+                    slot_start_naive = datetime.combine(current_date, slot_start_time)
+                    slot_start = slot_start_naive.replace(tzinfo=timezone.utc)
+                    slot_end = slot_start + timedelta(minutes=duration_minutes)
+                    
+                    # Vérifier si le slot est bloqué
+                    is_blocked = any(
+                        blocked.start_datetime <= slot_start < blocked.end_datetime
+                        for blocked in blocked_slots
+                    )
+                    
+                    # Vérifier si le slot est déjà réservé
+                    # Tolérance de 1 minute pour éviter les problèmes d'arrondi
+                    is_booked = any(
+                        abs((appt.appointment_date - slot_start).total_seconds()) < 60
+                        for appt in appointments
+                    )
+                    
+                    # Ajouter le slot à la liste
+                    slots.append({
+                        'id': slot_start.isoformat(),
+                        'doctor_id': doctor_id,
+                        'start_time': slot_start,
+                        'end_time': slot_end,
+                        'consultation_types': slot_consultation_types,
+                        'is_available': not (is_blocked or is_booked),
+                        'schedule_entry_id': entry.id,
+                        'location': entry.location
+                    })
+                    
+                    # Passer au créneau suivant
+                    next_time = datetime.combine(current_date, slot_start_time) + timedelta(minutes=duration_minutes)
+                    slot_start_time = next_time.time()
+                    
+                    # Ajouter la pause si configurée
+                    if entry.break_duration and entry.break_duration > 0:
+                        next_time += timedelta(minutes=entry.break_duration)
+                        slot_start_time = next_time.time()
+            
+            current_date += timedelta(days=1)
+        
+        return slots
 
     @staticmethod
     def delete_schedule_entry(db: Session, doctor_id: int, schedule_entry_id: int) -> None:

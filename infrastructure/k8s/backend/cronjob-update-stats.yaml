@@ -1,0 +1,155 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: update-doctor-statistics
+  namespace: sante
+  labels:
+    app: sante-backend
+    component: cronjob
+    tier: backend
+spec:
+  # Exécute le job tous les jours à 2h00 du matin (UTC)
+  schedule: "0 2 * * *"
+  
+  # Nombre de jobs réussis à conserver dans l'historique
+  successfulJobsHistoryLimit: 3
+  
+  # Nombre de jobs échoués à conserver dans l'historique
+  failedJobsHistoryLimit: 3
+  
+  # Politique d'exécution si le job précédent n'est pas terminé
+  # Allow: autorise l'exécution simultanée
+  # Forbid: interdit l'exécution si le job précédent est en cours
+  # Replace: annule le job en cours et lance le nouveau
+  concurrencyPolicy: Forbid
+  
+  jobTemplate:
+    metadata:
+      labels:
+        app: sante-backend
+        component: cronjob
+        job: update-doctor-statistics
+    spec:
+      # Délai maximum pour terminer le job (1 heure)
+      activeDeadlineSeconds: 3600
+      
+      # Nombre de tentatives en cas d'échec
+      backoffLimit: 3
+      
+      template:
+        metadata:
+          labels:
+            app: sante-backend
+            component: cronjob
+            job: update-doctor-statistics
+        spec:
+          restartPolicy: OnFailure
+          
+          containers:
+          - name: update-statistics
+            image: sante-backend:latest
+            imagePullPolicy: IfNotPresent
+            
+            command:
+            - python
+            - update_doctor_statistics.py
+            
+            env:
+            # Variables d'environnement depuis le ConfigMap
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DATABASE_URL
+            
+            # Variables sensibles depuis les Secrets
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SECRET_KEY
+            
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: POSTGRES_PASSWORD
+            
+            # Configuration PostgreSQL
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: POSTGRES_HOST
+            
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: POSTGRES_PORT
+            
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: POSTGRES_DB
+            
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: POSTGRES_USER
+            
+            # Limites de ressources
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "100m"
+              limits:
+                memory: "512Mi"
+                cpu: "500m"
+            
+            # Logs détaillés
+            volumeMounts:
+            - name: logs
+              mountPath: /app/logs
+          
+          volumes:
+          - name: logs
+            emptyDir: {}
+---
+# Service Account pour le CronJob (optionnel, pour les permissions)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cronjob-update-statistics
+  namespace: sante
+  labels:
+    app: sante-backend
+    component: cronjob
+---
+# Role pour accéder aux ressources nécessaires (si besoin)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cronjob-update-statistics
+  namespace: sante
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list"]
+---
+# RoleBinding pour lier le ServiceAccount au Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cronjob-update-statistics
+  namespace: sante
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cronjob-update-statistics
+subjects:
+- kind: ServiceAccount
+  name: cronjob-update-statistics
+  namespace: sante

@@ -130,23 +130,23 @@ services:
       - sante_network
 
   # Svelte Frontend (Production)
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: sante_frontend
-    environment:
-      # API URL for browser and SSR
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
-      NODE_ENV: production
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
-    networks:
-      - sante_network
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile.simple
+  #   container_name: sante_frontend
+  #   environment:
+  #     # API URL for browser and SSR
+  #     VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+  #     NODE_ENV: production
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - sante_network
 
-  # # Nginx Reverse Proxy
+  # Nginx Reverse Proxy
   # nginx:
   #   image: nginx:alpine
   #   container_name: sante_nginx
@@ -242,28 +242,28 @@ services:
   #     - sante_network
 
   # Postfix SMTP Service (local relay)
-  postfix_smtp:
-    build:
-      context: ./infrastructure/docker/postfix
-      dockerfile: Dockerfile
-    container_name: sante_postfix_smtp
-    restart: unless-stopped
-    ports:
-      - "2525:25"    # expose 25 on host at 2525 to avoid privileged port
-    networks:
-      - sante_network
-    volumes:
-      - ./infrastructure/docker/postfix/certs:/etc/postfix/certs
-    environment:
-      - TZ=Europe/Paris
-      # Optional: configure relay to a real SMTP provider (fill these in and restart)
-      # RELAY_HOST=smtp.sendgrid.net
-      # RELAY_PORT=587
-      # RELAY_USER=apikey
-      # RELAY_PASSWORD=YOUR_SENDGRID_API_KEY
-      # RELAY_USE_TLS=true
+  # postfix_smtp:
+  #   build:
+  #     context: ./infrastructure/docker/postfix
+  #     dockerfile: Dockerfile
+  #   container_name: sante_postfix_smtp
+  #   restart: unless-stopped
+  #   ports:
+  #     - "2525:25"    # expose 25 on host at 2525 to avoid privileged port
+  #   networks:
+  #     - sante_network
+  #   volumes:
+  #     - ./infrastructure/docker/postfix/certs:/etc/postfix/certs
+  #   environment:
+  #     - TZ=Europe/Paris
+  #     # Optional: configure relay to a real SMTP provider (fill these in and restart)
+  #     # RELAY_HOST=smtp.sendgrid.net
+  #     # RELAY_PORT=587
+  #     # RELAY_USER=apikey
+  #     # RELAY_PASSWORD=YOUR_SENDGRID_API_KEY
+  #     # RELAY_USE_TLS=true
 
-  # # Certbot (Let's Encrypt) - obtain and renew TLS certs for Postfix
+  # # # Certbot (Let's Encrypt) - obtain and renew TLS certs for Postfix
   # certbot:
   #   image: certbot/certbot:2.9.0
   #   container_name: sante_certbot

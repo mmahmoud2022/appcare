@@ -55,7 +55,7 @@ async def get_my_patient_profile(
     return PatientProfileResponse.model_validate(profile)
 
 
-@router.put("/me", response_model=PatientProfileResponse)
+@router.patch("/me", response_model=PatientProfileResponse)
 async def update_my_patient_profile(
     profile_data: PatientProfileUpdate,
     current_user: User = Depends(require_role([UserRole.PATIENT])),
@@ -236,7 +236,7 @@ async def search_doctors_for_patient(
     current_user: User = Depends(require_role([UserRole.PATIENT])),
     db: Session = Depends(get_db)
 ):
-    """Rechercher des praticiens disponibles"""
+    """Rechercher des praticiens disponibles (GET)"""
     filters = DoctorSearchRequest(
         specialty=specialty,
         city=city,
@@ -246,6 +246,18 @@ async def search_doctors_for_patient(
         search=search
     )
     return PatientService.search_doctors(db, filters, page, page_size)
+
+
+@router.post("/search-doctors", response_model=DoctorSearchResponse)
+async def search_doctors_post(
+    request_data: DoctorSearchRequest,
+    current_user: User = Depends(require_role([UserRole.PATIENT])),
+    db: Session = Depends(get_db)
+):
+    """Rechercher des praticiens disponibles (POST - pour le frontend)"""
+    page = request_data.page or 1
+    page_size = request_data.page_size or 20
+    return PatientService.search_doctors(db, request_data, page, page_size)
 
 
 @router.post("/reviews", response_model=DoctorReviewResponse, status_code=status.HTTP_201_CREATED)

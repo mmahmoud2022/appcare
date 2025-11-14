@@ -421,16 +421,20 @@
                   </div>
                   <div>
                     <p class="text-xs text-gray-500 font-medium">Tarif</p>
-                    <p class="text-lg font-bold text-gray-900">{doctor.consultation_price.toFixed(2)} €</p>
+                    <p class="text-lg font-bold text-gray-900">{doctor.consultation_price.toLocaleString('fr-FR')} XOF</p>
                   </div>
                 </div>
               {/if}
               <div class="text-right">
                 <div class="flex items-center gap-1">
-                  <span class="text-2xl font-bold text-gray-900">{doctor.average_rating.toFixed(1)}</span>
+                  <span class="text-2xl font-bold text-gray-900">
+                    {doctor.average_rating ? doctor.average_rating.toFixed(1) : '0.0'}
+                  </span>
                   <span class="text-2xl text-yellow-500">★</span>
                 </div>
-                <p class="text-xs text-gray-500">{doctor.total_reviews} avis</p>
+                <p class="text-xs text-gray-500">
+                  {doctor.total_reviews || 0} {doctor.total_reviews === 1 ? 'avis' : 'avis'}
+                </p>
               </div>
             </div>
 

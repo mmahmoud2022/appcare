@@ -51,8 +51,8 @@
     loading = true;
     error = null;
     try {
-      const status = filterStatus === 'all' ? undefined : filterStatus;
-      const response = await getDoctorAppointments(1, 100, status);
+      // Charger tous les rendez-vous sans filtrage (le filtrage se fait côté client)
+      const response = await getDoctorAppointments(1, 100);
       appointments = response.items || [];
     } catch (err: any) {
       console.error('Error loading appointments:', err);
@@ -170,59 +170,102 @@
     }
   };
 
-  $: filteredAppointments = appointments;
+  // Filtrage réactif côté client
+  $: filteredAppointments = filterStatus === 'all' 
+    ? appointments 
+    : appointments.filter(apt => apt.status === filterStatus);
 </script>
 
 <div class="space-y-6">
   <!-- Header -->
-  <div class="flex items-center justify-between">
-    <h2 class="text-2xl font-bold text-gray-900">Mes Rendez-vous</h2>
-    <select
-      bind:value={filterStatus}
-      on:change={loadAppointments}
-      class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-    >
-      <option value="all">Tous</option>
-      <option value="pending">En attente</option>
-      <option value="confirmed">Confirmés</option>
-      <option value="completed">Terminés</option>
-      <option value="cancelled">Annulés</option>
-      <option value="no_show">Absents</option>
-    </select>
+  <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl shadow-lg p-6 mb-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-3xl font-bold text-white mb-2">Mes Rendez-vous</h2>
+        <div class="flex items-center gap-4 text-emerald-50">
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span class="text-sm font-medium">{appointments.length} rendez-vous au total</span>
+          </div>
+          {#if filteredAppointments.length !== appointments.length}
+            <div class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              <span class="text-sm font-medium">{filteredAppointments.length} affichés</span>
+            </div>
+          {/if}
+        </div>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-lg p-1">
+        <select
+          bind:value={filterStatus}
+          class="px-4 py-2.5 border-2 border-white/20 bg-white/90 backdrop-blur rounded-lg focus:ring-2 focus:ring-white focus:border-white transition-all font-medium text-gray-900 cursor-pointer"
+        >
+          <option value="all">📋 Tous les statuts</option>
+          <option value="pending">⏳ En attente</option>
+          <option value="confirmed">✅ Confirmés</option>
+          <option value="completed">🎉 Terminés</option>
+          <option value="cancelled">❌ Annulés</option>
+          <option value="no_show">👤 Absents</option>
+        </select>
+      </div>
+    </div>
   </div>
 
   {#if loading}
-    <div class="flex items-center justify-center py-12">
-      <svg class="animate-spin h-8 w-8 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <div class="flex flex-col items-center justify-center py-12">
+      <svg class="animate-spin h-10 w-10 text-emerald-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
+      <p class="text-gray-600">Chargement des rendez-vous...</p>
     </div>
   {:else if error}
     <div class="bg-red-50 border border-red-200 rounded-lg p-4">
       <p class="text-red-800">{error}</p>
     </div>
   {:else if filteredAppointments.length === 0}
-    <div class="text-center py-12">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-      <p class="text-gray-600">Aucun rendez-vous trouvé</p>
+    <div class="text-center py-16 bg-gradient-to-b from-gray-50 to-white rounded-xl border border-gray-200">
+      <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">Aucun rendez-vous</h3>
+      <p class="text-gray-600">
+        {#if filterStatus !== 'all'}
+          Aucun rendez-vous avec le statut "{getStatusLabel(filterStatus)}"
+        {:else}
+          Vous n'avez pas encore de rendez-vous programmés
+        {/if}
+      </p>
     </div>
   {:else}
     <div class="grid grid-cols-1 gap-4">
       {#each filteredAppointments as appointment}
-        <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+        <div class="bg-white rounded-xl border-2 {appointment.status === 'confirmed' ? 'border-emerald-200' : 'border-gray-200'} p-6 hover:shadow-lg transition-all duration-200">
           <div class="flex items-start justify-between">
             <div class="flex-1">
-              <div class="flex items-center gap-3 mb-3">
-                <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
+              <div class="flex items-center gap-4 mb-4">
+                <div class="relative">
+                  <div class="w-14 h-14 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-xl flex items-center justify-center shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  {#if appointment.consultation_type === 'teleconsultation'}
+                    <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  {/if}
                 </div>
                 <div class="flex-1">
-                  <h3 class="font-semibold text-gray-900 text-lg">
+                  <h3 class="font-bold text-gray-900 text-xl mb-1">
                     {#if appointment.patient_first_name && appointment.patient_last_name}
                       {appointment.patient_first_name} {appointment.patient_last_name}
                     {:else if appointment.patient}
@@ -231,25 +274,42 @@
                       Patient inconnu
                     {/if}
                   </h3>
-                  <p class="text-sm text-gray-500">{appointment.patient?.email || ''}</p>
+                  <p class="text-sm text-gray-500 flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    {appointment.patient?.email || 'Email non disponible'}
+                  </p>
                 </div>
-                <span class="px-3 py-1 rounded-full text-sm font-medium {getStatusBadgeClass(appointment.status)}">
-                  {getStatusLabel(appointment.status)}
-                </span>
+                <div class="flex flex-col items-end gap-2">
+                  <span class="px-4 py-1.5 rounded-full text-sm font-semibold {getStatusBadgeClass(appointment.status)} shadow-sm">
+                    {getStatusLabel(appointment.status)}
+                  </span>
+                </div>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                <div class="flex items-center gap-2 text-gray-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span class="text-sm">{formatDate(appointment.appointment_date)}</span>
+                <div class="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
+                  <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500 font-medium">Date & Heure</p>
+                    <p class="text-sm font-semibold text-gray-900">{formatDate(appointment.appointment_date)}</p>
+                  </div>
                 </div>
-                <div class="flex items-center gap-2 text-gray-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  <span class="text-sm">{getConsultationTypeLabel(appointment.consultation_type)}</span>
+                <div class="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
+                  <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 {appointment.consultation_type === 'teleconsultation' ? 'text-blue-600' : 'text-gray-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500 font-medium">Type</p>
+                    <p class="text-sm font-semibold text-gray-900">{getConsultationTypeLabel(appointment.consultation_type)}</p>
+                  </div>
                 </div>
               </div>
 
@@ -272,26 +332,76 @@
                   {/if}
                 </div>
               {/if}
+
+              {#if appointment.meet_link}
+                <div class="bg-gradient-to-br from-blue-50 via-emerald-50 to-teal-50 rounded-xl p-5 mb-3 border-2 border-blue-100 shadow-sm">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-lg flex items-center justify-center shadow-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="text-sm font-bold text-gray-900">Salle de Téléconsultation</p>
+                        <p class="text-xs text-gray-600">👨‍⚕️ Vous êtes l'hôte de la consultation</p>
+                      </div>
+                    </div>
+                    <div class="px-3 py-1 bg-emerald-100 rounded-full">
+                      <span class="text-xs font-semibold text-emerald-700">🎯 Modérateur</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Message important pour le médecin -->
+                  <div class="bg-amber-50 border-l-4 border-amber-400 rounded-r-lg p-3 mb-3">
+                    <div class="flex items-start gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div>
+                        <p class="text-xs font-semibold text-amber-900 mb-1">Important</p>
+                        <p class="text-xs text-amber-800">Rejoignez la salle en premier pour devenir automatiquement modérateur et contrôler la consultation.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <TeleconsultationButton 
+                    meetLink={appointment.meet_link}
+                    appointmentDate={appointment.appointment_date}
+                    appointmentStatus={appointment.status}
+                    size="medium"
+                    isDoctor={true}
+                    doctorName="Docteur"
+                    patientName={`${appointment.patient_first_name || appointment.patient?.first_name || ''} ${appointment.patient_last_name || appointment.patient?.last_name || ''}`}
+                  />
+                </div>
+              {/if}
             </div>
           </div>
 
           <div class="flex gap-3 mt-4 pt-4 border-t border-gray-200">
             <button
               on:click={() => openDetailsModal(appointment)}
-              class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              class="flex-1 px-5 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all font-medium flex items-center justify-center gap-2"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
               Détails
             </button>
             <button
               on:click={() => openUpdateStatusModal(appointment)}
-              class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+              class="flex-1 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-lg hover:from-emerald-700 hover:to-emerald-600 transition-all font-medium shadow-md hover:shadow-lg flex items-center justify-center gap-2"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
               Mettre à jour
             </button>
             {#if appointment.status === 'completed' || appointment.status === 'cancelled' || appointment.status === 'no_show'}
               <button
                 on:click={() => handleDeleteAppointment(appointment)}
-                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                class="px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all disabled:opacity-50 shadow-md hover:shadow-lg"
                 disabled={deletingAppointment}
                 title="Supprimer le rendez-vous"
               >
@@ -348,12 +458,15 @@
         <!-- Teleconsultation button -->
         {#if selectedAppointment.meet_link}
           <div class="col-span-2">
-            <h4 class="font-semibold text-gray-900 mb-3">Téléconsultation</h4>
+            <h4 class="font-semibold text-gray-900 mb-3">Téléconsultation (Vous êtes l'hôte)</h4>
             <TeleconsultationButton 
               meetLink={selectedAppointment.meet_link}
               appointmentDate={selectedAppointment.appointment_date}
               appointmentStatus={selectedAppointment.status}
               size="medium"
+              isDoctor={true}
+              doctorName="Docteur"
+              patientName={`${selectedAppointment.patient_first_name || selectedAppointment.patient?.first_name || ''} ${selectedAppointment.patient_last_name || selectedAppointment.patient?.last_name || ''}`}
             />
           </div>
         {/if}

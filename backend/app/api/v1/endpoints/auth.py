@@ -360,8 +360,8 @@ async def register_practitioner(
     db.refresh(doctor_profile)
     
     # Create default settings for the doctor
-    settings = DoctorSettings(doctor_id=doctor_profile.id)
-    db.add(settings)
+    doctor_settings = DoctorSettings(doctor_id=doctor_profile.id)
+    db.add(doctor_settings)
     db.commit()
     
     # Generate verification token

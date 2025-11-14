@@ -392,6 +392,52 @@ export const getDoctorSchedule = async (doctorId: number) => {
   return response.data;
 };
 
+/**
+ * Récupère les créneaux RÉELLEMENT disponibles d'un médecin
+ * Cette API croise automatiquement:
+ * - Les horaires récurrents
+ * - Les slots bloqués
+ * - Les rendez-vous déjà réservés
+ * 
+ * @param doctorId - ID du médecin
+ * @param startDate - Date de début (format YYYY-MM-DD)
+ * @param endDate - Date de fin (format YYYY-MM-DD) 
+ * @param consultationType - Optionnel: filtrer par type (IN_PERSON, TELECONSULTATION)
+ */
+export interface AvailableSlot {
+  id: string;
+  doctor_id: number;
+  start_time: string;
+  end_time: string;
+  consultation_types: ConsultationType[];
+  is_available: boolean;
+  schedule_entry_id: number;
+  location?: string;
+}
+
+export const getDoctorAvailableSlots = async (
+  doctorId: number,
+  startDate: string,
+  endDate: string,
+  consultationType?: ConsultationType
+): Promise<AvailableSlot[]> => {
+  const params: any = {
+    start_date: startDate,
+    end_date: endDate,
+  };
+  
+  if (consultationType) {
+    params.consultation_type = consultationType;
+  }
+  
+  const response = await axios.get(`${API_URL}/api/v1/doctors/${doctorId}/available-slots`, {
+    headers: getAuthHeaders(),
+    params,
+  });
+  
+  return response.data;
+};
+
 export const getDoctorProfile = async (doctorId: number): Promise<DoctorProfile> => {
   const response = await axios.get(`${API_URL}/api/v1/doctors/${doctorId}`, {
     headers: getAuthHeaders(),

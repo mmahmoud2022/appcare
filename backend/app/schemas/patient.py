@@ -91,6 +91,7 @@ class PatientAppointmentSummary(BaseModel):
     status: AppointmentStatusEnum
     reason: Optional[str]
     is_teleconsultation: bool = False
+    meet_link: Optional[str] = None
     schedule_entry_id: Optional[int] = None
 
 
@@ -163,6 +164,8 @@ class DoctorSearchRequest(BaseModel):
     min_price: Optional[float] = Field(None, ge=0)
     max_price: Optional[float] = Field(None, ge=0)
     search: Optional[str] = Field(None, max_length=100)
+    page: Optional[int] = Field(1, ge=1)
+    page_size: Optional[int] = Field(20, ge=1, le=100)
 
 
 class DoctorSearchResult(BaseModel):

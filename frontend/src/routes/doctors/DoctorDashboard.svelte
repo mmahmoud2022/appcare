@@ -282,8 +282,12 @@
                   </svg>
                 </div>
               </div>
-              <p class="text-4xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent mb-2">{statistics.average_rating.toFixed(1)}</p>
-              <p class="text-sm text-slate-500 font-medium">{statistics.total_reviews} avis reçus</p>
+              <p class="text-4xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent mb-2">
+                {statistics.average_rating ? statistics.average_rating.toFixed(1) : '0.0'}
+              </p>
+              <p class="text-sm text-slate-500 font-medium">
+                {statistics.total_reviews || 0} avis reçu{(statistics.total_reviews || 0) > 1 ? 's' : ''}
+              </p>
             </div>
           </div>
 

@@ -24,30 +24,30 @@
   <!-- 3D Card Effect -->
   <div class={`relative transform transition-all duration-500 preserve-3d ${isHovered ? 'rotate-y-5 scale-105' : ''}`}>
     <!-- Glow effect -->
-    <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur opacity-25 group-hover:opacity-75 transition-opacity duration-500"></div>
+  <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur opacity-25 group-hover:opacity-75 transition-opacity duration-500 -z-10"></div>
     
     <!-- Main Card -->
-    <div class="relative bg-white rounded-3xl p-8 shadow-2xl border-2 border-gray-100 overflow-hidden">
+    <div class="relative bg-white rounded-3xl p-8 shadow-2xl border-2 border-gray-100 overflow-hidden z-10">
       <!-- Animated background pattern -->
-      <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 group-hover:scale-150 transition-transform duration-1000"></div>
+  <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 group-hover:scale-150 transition-transform duration-1000 -z-10"></div>
       
       <!-- Status badge -->
-      <div class="absolute top-6 right-6">
+  <div class="absolute top-6 right-6 pointer-events-none">
         <div class={`relative px-4 py-2 rounded-full font-bold text-sm shadow-lg transform transition-transform duration-300 ${
           appointment.status === 'confirmed' 
             ? 'bg-gradient-to-r from-green-400 to-emerald-600 text-white group-hover:scale-110' 
             : 'bg-gradient-to-r from-blue-400 to-indigo-600 text-white group-hover:scale-110'
         }`}>
-          <div class="absolute inset-0 rounded-full bg-white/20 animate-ping"></div>
+    <div class="absolute inset-0 rounded-full bg-white/20 animate-ping pointer-events-none"></div>
           <span class="relative">
             {appointment.status === 'confirmed' ? '✓ Confirmé' : '⏱ En attente'}
           </span>
         </div>
       </div>
       
-      <div class="relative z-10">
+      <div class="relative z-30">
         <!-- Doctor info -->
-        <div class="flex items-start gap-4 mb-6">
+  <div class="flex items-start gap-4 mb-6 relative">
           <div class="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-xl transform group-hover:rotate-12 transition-transform duration-500">
             {appointment.doctor_first_name?.[0]}{appointment.doctor_last_name?.[0]}
           </div>
@@ -106,7 +106,7 @@
         {/if}
 
         <!-- Action buttons -->
-        <div class="flex gap-3">
+        <div class="flex gap-3 relative z-40">
           <button
             on:click={() => dispatch('reschedule', appointment)}
             class="group/btn flex-1 relative overflow-hidden px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl font-bold shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 active:scale-95"

@@ -165,6 +165,40 @@ class ScheduleEntryUpdate(BaseModel):
         from_attributes = True
 
 
+# ========== Available Slots Schema ==========
+
+class AvailableSlotResponse(BaseModel):
+    """
+    Représente un créneau disponible pour prise de rendez-vous.
+    Généré en croisant:
+    - Les horaires récurrents (DoctorScheduleEntry)
+    - Les slots bloqués (DoctorBlockedSlot)
+    - Les rendez-vous existants (Appointment)
+    """
+    id: str = Field(..., description="Identifiant unique du slot (ISO datetime)")
+    doctor_id: int = Field(..., description="ID du médecin")
+    start_time: datetime = Field(..., description="Heure de début du créneau")
+    end_time: datetime = Field(..., description="Heure de fin du créneau")
+    consultation_types: List[ConsultationTypeEnum] = Field(..., description="Types de consultation disponibles pour ce créneau")
+    is_available: bool = Field(True, description="True si le créneau est libre, False si déjà réservé ou bloqué")
+    schedule_entry_id: int = Field(..., description="ID de l'entrée de planning source")
+    location: Optional[str] = Field(None, description="Lieu du rendez-vous (adresse cabinet, etc.)")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": "2025-11-15T09:00:00",
+                "doctor_id": 1,
+                "start_time": "2025-11-15T09:00:00",
+                "end_time": "2025-11-15T09:30:00",
+                "consultation_types": ["IN_PERSON", "TELECONSULTATION"],
+                "is_available": True,
+                "schedule_entry_id": 5,
+                "location": "123 Rue de la Santé, 75013 Paris"
+            }
+        }
+
+
 class DoctorAvailabilitySlot(BaseModel):
     """Slot disponible calculé dynamiquement"""
     schedule_entry_id: int

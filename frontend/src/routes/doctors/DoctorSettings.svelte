@@ -333,10 +333,10 @@
                 step="0.01"
               />
               <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
-                €
+                XOF
               </span>
             </div>
-            <p class="mt-1 text-sm text-gray-500">💡 Tarif en euros</p>
+            <p class="mt-1 text-sm text-gray-500">💡 Tarif en Francs CFA (XOF)</p>
           </div>
 
           <div>

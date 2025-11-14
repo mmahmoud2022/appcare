@@ -4,6 +4,7 @@ Service pour la gestion des fonctionnalités patient
 from __future__ import annotations
 
 import json
+import logging
 from datetime import datetime, timedelta, date, time, timezone
 import unicodedata
 from typing import Dict, List, Optional, Tuple
@@ -11,6 +12,8 @@ from typing import Dict, List, Optional, Tuple
 from fastapi import HTTPException, status
 from sqlalchemy import and_, func, or_, desc, cast, String
 from sqlalchemy.orm import Session, joinedload
+
+logger = logging.getLogger(__name__)
 
 from app.models.user import User, UserRole
 from app.models.doctor import (
@@ -55,8 +58,7 @@ from app.schemas.doctor import (
     DoctorAvailabilitySlot,
 )
 from app.services.doctor_service import DoctorService
-import uuid
-from app.core.config import settings
+from app.services.teleconsultation_service import TeleconsultationService
 
 
 SPECIALTY_ALIASES: Dict[str, SpecialtyEnum] = {}
@@ -230,7 +232,8 @@ class PatientService:
             consultation_type=appointment.consultation_type,
             status=appointment.status,
             reason=appointment.reason,
-            is_teleconsultation=appointment.consultation_type == ConsultationTypeEnum.TELECONSULTATION
+            is_teleconsultation=appointment.consultation_type == ConsultationTypeEnum.TELECONSULTATION,
+            meet_link=appointment.meet_link
         )
 
     @staticmethod
@@ -416,15 +419,17 @@ class PatientService:
                     detail="Ce créneau est déjà passé"
                 )
 
+            # ✅ VALIDATION: Vérifier que le créneau n'est pas bloqué (avec verrouillage)
             blocked_conflict = db.query(DoctorBlockedSlot).with_for_update().filter(
                 DoctorBlockedSlot.doctor_id == doctor.id,
                 DoctorBlockedSlot.start_datetime < slot_end,
                 DoctorBlockedSlot.end_datetime > slot_start
             ).first()
             if blocked_conflict:
+                reason = blocked_conflict.reason or "Indisponible"
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Ce créneau est bloqué par le praticien"
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Ce créneau est bloqué par le praticien: {reason}"
                 )
 
             doctor_conflicts = db.query(Appointment).with_for_update().filter(
@@ -437,8 +442,8 @@ class PatientService:
                 conflict_end = conflict.appointment_date + timedelta(minutes=conflict.duration or slot_duration)
                 if conflict.appointment_date < slot_end and slot_start < conflict_end:
                     raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="Ce créneau est déjà réservé"
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail="Ce créneau vient d'être réservé par un autre patient. Veuillez en choisir un autre."
                     )
 
             patient_conflicts = db.query(Appointment).with_for_update().filter(
@@ -468,15 +473,28 @@ class PatientService:
                 price=doctor.consultation_price,
             )
             db.add(appointment)
+            db.flush()  # Flush to get the ID before generating meet link
+            
+            # Générer le lien de téléconsultation si nécessaire
+            if TeleconsultationService.should_generate_meet_link(consultation_type):
+                appointment.meet_link = TeleconsultationService.generate_meet_link(appointment)
+            
             db.commit()
-            # Generate meeting link for teleconsultations
-            if consultation_type == ConsultationTypeEnum.TELECONSULTATION:
-                # Use configured base URL if provided, otherwise default to Jitsi public
-                base = getattr(settings, 'VIDEO_CALL_BASE_URL', None) or "https://meet.jit.si"
-                room_name = f"sante-{doctor.id}-{patient_id}-{uuid.uuid4().hex[:8]}"
-                appointment.meet_link = f"{base.rstrip('/')}/{room_name}"
-                db.add(appointment)
-                db.commit()
+            
+            # 🔔 Notification WebSocket: créneau réservé
+            from app.core.websocket import manager as websocket_manager
+            import asyncio
+            try:
+                slot_id = appointment.appointment_date.isoformat()
+                asyncio.create_task(
+                    websocket_manager.broadcast_slot_booked(
+                        doctor.id,
+                        slot_id,
+                        patient_id
+                    )
+                )
+            except Exception as e:
+                logger.warning(f"⚠️ Erreur notification WebSocket: {e}")
         except Exception:
             db.rollback()
             raise
@@ -630,6 +648,14 @@ class PatientService:
                 appointment.reason = data["reason"]
             if "patient_notes" in data:
                 appointment.patient_notes = data["patient_notes"]
+            
+            # Générer ou mettre à jour le lien de téléconsultation si nécessaire
+            if TeleconsultationService.should_generate_meet_link(new_consultation_type):
+                if not appointment.meet_link:  # Générer uniquement si pas déjà présent
+                    appointment.meet_link = TeleconsultationService.generate_meet_link(appointment)
+            else:
+                # Supprimer le lien si le type change et n'est plus une téléconsultation
+                appointment.meet_link = None
 
             db.commit()
         except Exception:
@@ -1000,5 +1026,17 @@ class PatientService:
         db.commit()
         db.refresh(review)
         
+        # 🆕 Mettre à jour les statistiques du docteur
+        all_reviews = db.query(DoctorReview).filter(
+            DoctorReview.doctor_id == review_data.doctor_id
+        ).all()
+        
+        if all_reviews:
+            total_reviews_count = len(all_reviews)
+            average_rating_value = sum(r.rating for r in all_reviews) / total_reviews_count
+            
+            doctor.total_reviews = total_reviews_count
+            doctor.average_rating = round(average_rating_value, 2)
+            db.commit()
+        
         return review
-

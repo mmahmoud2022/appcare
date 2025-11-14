@@ -16,6 +16,7 @@
   export let showAllSlots: boolean;
   export let availabilityLoading: boolean;
   export let availabilityError: string | null;
+  export let wsConnected: boolean = false; // 🆕 État WebSocket
   export let bookingPayload: {
     doctor_id: number;
     appointment_date: string;
@@ -30,6 +31,7 @@
   export let onRefreshSlots: () => void;
   export let onSubmit: () => void;
   export let onToggleShowAllSlots: () => void;
+  export let onConsultationTypeChange: () => void = () => {}; // 🆕 Callback changement type
   export let consultationTypeOptions: (doctor: DoctorSearchResult | null) => { value: ConsultationType; label: string }[];
 
   let showNotes = false;
@@ -58,6 +60,95 @@
         <!-- Doctor Card -->
         <BookingDoctorCard doctor={selectedDoctor} />
 
+        <!-- Selected Slot Summary -->
+        {#if bookingPayload.appointment_date}
+          <div class="relative overflow-hidden bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 rounded-2xl p-5 shadow-xl border-2 border-violet-400" transition:fly={{ y: -20, duration: 300 }}>
+            <div class="absolute inset-0 bg-grid-white/10"></div>
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+            
+            <div class="relative z-10">
+              <div class="flex items-start gap-4">
+                <!-- Success Icon -->
+                <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0 animate-bounce">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-2">
+                    <h4 class="text-white font-bold text-lg">Créneau sélectionné</h4>
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  </div>
+                  
+                  <div class="space-y-2">
+                    <!-- Date -->
+                    <div class="flex items-center gap-2 text-white/95">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span class="font-semibold">
+                        {new Date(bookingPayload.appointment_date).toLocaleDateString('fr-FR', {
+                          weekday: 'long',
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                    
+                    <!-- Time -->
+                    <div class="flex items-center gap-2 text-white/95">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="font-bold text-xl">
+                        {new Date(bookingPayload.appointment_date).toLocaleTimeString('fr-FR', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                    
+                    <!-- Consultation Type -->
+                    <div class="flex items-center gap-2">
+                      {#if bookingPayload.consultation_type === 'teleconsultation'}
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-400/30 backdrop-blur-sm border border-emerald-300/50 text-white rounded-lg text-sm font-semibold">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          Téléconsultation
+                        </span>
+                      {:else}
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-400/30 backdrop-blur-sm border border-blue-300/50 text-white rounded-lg text-sm font-semibold">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                          En cabinet
+                        </span>
+                      {/if}
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Remove button -->
+                <button
+                  on:click={() => {
+                    bookingPayload.appointment_date = '';
+                    bookingPayload.schedule_entry_id = undefined;
+                  }}
+                  class="w-8 h-8 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg flex items-center justify-center transition-colors"
+                  title="Changer de créneau"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        {/if}
+
         <!-- Slots Picker -->
         <BookingSlotPicker 
           {visibleSlotGroups}
@@ -65,11 +156,18 @@
           {showAllSlots}
           {availabilityLoading}
           {availabilityError}
+          {wsConnected}
+          selectedConsultationType={bookingPayload.consultation_type}
           selectedDate={bookingPayload.appointment_date}
           selectedScheduleEntryId={bookingPayload.schedule_entry_id}
           onSlotSelect={onSlotSelect}
           onRefresh={onRefreshSlots}
           onToggleShowMore={onToggleShowAllSlots}
+          onConsultationTypeFilterChange={(newType) => {
+            bookingPayload.consultation_type = newType as any;
+            bookingPayload.schedule_entry_id = undefined;
+            onConsultationTypeChange();
+          }}
         />
 
         <!-- Form Fields -->
@@ -81,7 +179,10 @@
             <select
               id="booking-type"
               bind:value={bookingPayload.consultation_type}
-              on:change={() => bookingPayload.schedule_entry_id = undefined}
+              on:change={() => {
+                bookingPayload.schedule_entry_id = undefined;
+                onConsultationTypeChange();
+              }}
               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all bg-white"
             >
               {#each consultationTypeOptions(selectedDoctor) as option}

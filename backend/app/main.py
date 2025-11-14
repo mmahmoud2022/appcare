@@ -5,12 +5,13 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-
+from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.logging import setup_logging, get_logger
 from app.core.errors import APIError
 from app.api.v1 import api_router
+from app.core.websocket import manager as websocket_manager
 
 # Configure structured logging
 setup_logging(
@@ -18,6 +19,30 @@ setup_logging(
     json_logs=settings.ENVIRONMENT != "development"
 )
 logger = get_logger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Gestion du cycle de vie de l'application
+    Initialise et nettoie les ressources (WebSocket, Redis, etc.)
+    """
+    # Startup
+    logger.info("🚀 Démarrage de l'application...")
+    
+    # Initialiser WebSocket manager avec Redis
+    redis_url = settings.REDIS_URL if hasattr(settings, 'REDIS_URL') else "redis://redis:6379"
+    websocket_manager.redis_url = redis_url
+    await websocket_manager.connect()
+    
+    logger.info("✅ Application prête")
+    
+    yield
+    
+    # Shutdown
+    logger.info("🛑 Arrêt de l'application...")
+    await websocket_manager.disconnect()
+    logger.info("✅ Nettoyage terminé")
 
 # Initialize rate limiter
 #limiter = Limiter(key_func=get_remote_address)
@@ -29,7 +54,8 @@ app = FastAPI(
     version=settings.VERSION,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # Add rate limiter to app state

@@ -7,6 +7,7 @@ export interface SlotSuggestion {
   end: Date;
   consultation_type: ConsultationType;
   location?: string;
+  is_available?: boolean; // 🆕 Indique si le créneau est disponible ou bloqué
 }
 
 export interface SlotSuggestionGroup {
@@ -64,7 +65,9 @@ export const generateSlotSuggestions = (
             start: new Date(slotStart),
             end: slotEnd,
             consultation_type: entry.consultation_type,
-            location: entry.location
+            location: entry.location,
+            // 🆕 Propager is_available depuis entry (si défini)
+            is_available: (entry as any).is_available !== undefined ? (entry as any).is_available : true
           });
           if (suggestions.length >= maxSlots) return suggestions.sort((a, b) => a.start.getTime() - b.start.getTime());
         }

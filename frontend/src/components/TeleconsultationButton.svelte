@@ -3,6 +3,9 @@
   export let appointmentDate: string;
   export let appointmentStatus: string;
   export let size: 'small' | 'medium' | 'large' = 'medium';
+  export let isDoctor: boolean = false;  // Nouveau paramètre pour identifier si c'est le docteur
+  export let doctorName: string = '';  // Nom du docteur
+  export let patientName: string = '';  // Nom du patient
 
   // Vérifier si la téléconsultation est disponible
   $: canJoin = meetLink && (appointmentStatus === 'CONFIRMED' || appointmentStatus === 'confirmed');
@@ -21,9 +24,59 @@
     large: 'px-6 py-3 text-base'
   };
 
+  /**
+   * Ajoute des paramètres personnalisés au lien Jitsi selon le rôle
+   * Note: Sur Jitsi Meet public (meet.jit.si), le premier à rejoindre devient automatiquement modérateur.
+   * Pour avoir un vrai contrôle modérateur, il faudrait utiliser une instance Jitsi self-hosted avec JWT.
+   */
+  function enhanceMeetLink(baseLink: string): string {
+    try {
+      const url = new URL(baseLink);
+      const params = new URLSearchParams();
+      
+      if (isDoctor) {
+        // Paramètres pour le médecin (hôte - doit rejoindre en premier)
+        params.append('userInfo.displayName', doctorName || 'Docteur');
+        params.append('userInfo.email', '');  // Email optionnel
+        params.append('config.startWithAudioMuted', 'false');
+        params.append('config.startWithVideoMuted', 'false');
+        params.append('config.prejoinPageEnabled', 'false');  // Rejoindre directement sans attente
+        params.append('config.enableWelcomePage', 'false');
+        params.append('config.requireDisplayName', 'false');
+        // Configuration pour priorité de modérateur
+        params.append('config.disableInviteFunctions', 'false');
+        params.append('interfaceConfig.SHOW_JITSI_WATERMARK', 'false');
+        params.append('interfaceConfig.SHOW_WATERMARK_FOR_GUESTS', 'false');
+        params.append('interfaceConfig.DISABLE_JOIN_LEAVE_NOTIFICATIONS', 'false');
+        // Le médecin rejoint avec privilèges complets
+        params.append('config.enableLobbyChat', 'false');
+        params.append('config.startSilent', 'false');
+      } else {
+        // Paramètres pour le patient (invité - doit attendre ou rejoindre après)
+        params.append('userInfo.displayName', patientName || 'Patient');
+        params.append('config.startWithAudioMuted', 'true');
+        params.append('config.startWithVideoMuted', 'true');
+        params.append('config.prejoinPageEnabled', 'true');  // Écran d'attente pour le patient
+        params.append('config.requireDisplayName', 'true');
+        params.append('config.enableWelcomePage', 'false');
+        // Le patient rejoint en mode invité
+        params.append('config.disableInviteFunctions', 'true');
+        params.append('interfaceConfig.DISABLE_FOCUS_INDICATOR', 'true');
+      }
+      
+      // Ajouter les paramètres au hash de l'URL
+      url.hash = params.toString();
+      return url.toString();
+    } catch (e) {
+      console.error('Erreur lors de l\'amélioration du lien:', e);
+      return baseLink;
+    }
+  }
+
   function joinMeeting() {
     if (meetLink) {
-      window.open(meetLink, '_blank', 'noopener,noreferrer');
+      const enhancedLink = enhanceMeetLink(meetLink);
+      window.open(enhancedLink, '_blank', 'noopener,noreferrer');
     }
   }
 </script>
