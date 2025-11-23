@@ -136,7 +136,7 @@
     </div>
   </div>
 
-  <div class="bg-white border border-gray-200 rounded-2xl shadow-md p-8">
+  <div class="bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-md p-4 sm:p-6 md:p-8">
     {#if loading}
       <div class="py-16 flex items-center justify-center">
         <div class="text-center">

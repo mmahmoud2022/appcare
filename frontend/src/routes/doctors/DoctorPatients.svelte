@@ -399,17 +399,17 @@
       </div>
       
       <!-- Stats -->
-      <div class="p-6 bg-gray-50 border-b border-gray-200">
-        <div class="grid grid-cols-2 gap-4">
+      <div class="p-4 sm:p-6 bg-gray-50 border-b border-gray-200">
+        <div class="grid grid-cols-2 gap-3 sm:gap-4">
           <div class="text-center">
-            <p class="text-3xl font-bold text-gray-900">{selectedPatient.total_appointments}</p>
-            <p class="text-sm text-gray-600 mt-1">Total rendez-vous</p>
+            <p class="text-2xl sm:text-3xl font-bold text-gray-900">{selectedPatient.total_appointments}</p>
+            <p class="text-xs sm:text-sm text-gray-600 mt-1">Total rendez-vous</p>
           </div>
           <div class="text-center">
-            <p class="text-3xl font-bold text-emerald-600">
+            <p class="text-2xl sm:text-3xl font-bold text-emerald-600">
               {medicalRecord?.total_consultations || 0}
             </p>
-            <p class="text-sm text-gray-600 mt-1">Consultations terminées</p>
+            <p class="text-xs sm:text-sm text-gray-600 mt-1">Consultations terminées</p>
           </div>
         </div>
       </div>

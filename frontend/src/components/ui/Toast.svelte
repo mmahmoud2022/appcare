@@ -44,10 +44,10 @@
   $: toasts = $toastsStore;
 </script>
 
-<div class="fixed top-4 right-4 z-[200] space-y-2 pointer-events-none">
+<div class="fixed top-2 right-2 sm:top-4 sm:right-4 z-[200] space-y-2 pointer-events-none max-w-[calc(100vw-1rem)] sm:max-w-md">
   {#each toasts as toast (toast.id)}
     <div 
-      class={`pointer-events-auto transform transition-all duration-300 ease-out max-w-md rounded-2xl shadow-2xl p-4 border-2 ${
+      class={`pointer-events-auto transform transition-all duration-300 ease-out w-full rounded-xl sm:rounded-2xl shadow-2xl p-3 sm:p-4 border-2 ${
         toast.type === 'success' 
           ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-300' 
           : toast.type === 'error'
@@ -58,8 +58,8 @@
       }`}
       role="alert"
     >
-      <div class="flex items-start gap-3">
-        <div class={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md ${
+      <div class="flex items-start gap-2 sm:gap-3">
+        <div class={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 shadow-md ${
           toast.type === 'success' 
             ? 'bg-green-500' 
             : toast.type === 'error'
@@ -69,7 +69,7 @@
             : 'bg-blue-500'
         }`}>
           {#if toast.type === 'success'}
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-6 sm:w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           {:else if toast.type === 'error'}
@@ -87,7 +87,7 @@
           {/if}
         </div>
         <div class="flex-1 min-w-0">
-          <p class={`text-sm font-bold ${
+          <p class={`text-xs sm:text-sm font-bold break-words ${
             toast.type === 'success' 
               ? 'text-green-900' 
               : toast.type === 'error'

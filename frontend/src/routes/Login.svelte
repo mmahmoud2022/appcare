@@ -158,25 +158,25 @@
   };
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center px-4 py-12">
-  <div class="max-w-md w-full space-y-8">
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
+  <div class="max-w-md w-full space-y-6 sm:space-y-8">
     <!-- Logo/Title -->
-    <div class="text-center mb-8 animate-slide-down">
-      <div class="inline-block mb-6 relative">
-        <div class="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto shadow-xl animate-bounce bg-gradient-to-br from-emerald-500 to-teal-600">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="text-center mb-6 sm:mb-8 animate-slide-down">
+      <div class="inline-block mb-4 sm:mb-6 relative">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto shadow-xl animate-bounce bg-gradient-to-br from-emerald-500 to-teal-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-10 sm:w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
         </div>
-        <div class="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-full shadow-lg"></div>
+        <div class="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-full shadow-lg"></div>
       </div>
-      <h1 class="text-5xl font-bold mb-3 bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Connexion</h1>
-      <p class="text-lg text-gray-700 font-medium">Accédez à votre compte</p>
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Connexion</h1>
+      <p class="text-base sm:text-lg text-gray-700 font-medium">Accédez à votre compte</p>
     </div>
 
     <!-- Login Form -->
-    <div class="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-white/50 hover:shadow-emerald-200/50 transition-all duration-300">
-      <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 rounded-3xl -z-10"></div>
+    <div class="relative bg-white/80 backdrop-blur-lg rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-white/50 hover:shadow-emerald-200/50 transition-all duration-300">
+      <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 rounded-2xl sm:rounded-3xl -z-10"></div>
       
       <form on:submit|preventDefault={handleSubmit} class="space-y-6" novalidate>
         <!-- Error Message -->
@@ -266,7 +266,7 @@
               type="button"
               class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-emerald-600 transition-colors"
               on:click={() => showPassword = !showPassword}
-              aria-label="Toggle password visibility"
+              aria-label="Afficher ou masquer le mot de passe"
               aria-pressed={showPassword}
               tabindex="-1"
             >
@@ -302,7 +302,7 @@
         <!-- Submit Button -->
         <button
           type="submit"
-          class="group relative w-full py-4 px-6 rounded-xl font-bold shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none overflow-hidden {loading ? 'animate-pulse' : ''}"
+          class="group relative w-full py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold shadow-lg hover:shadow-2xl transform hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none overflow-hidden {loading ? 'animate-pulse' : ''}"
           disabled={!canSubmit}
           aria-busy={loading}
         >
@@ -311,28 +311,28 @@
           <div class="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           
           {#if loading}
-            <span class="relative flex items-center justify-center gap-3 text-white drop-shadow-lg">
-              <svg class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <span class="relative flex items-center justify-center gap-2 sm:gap-3 text-white drop-shadow-lg">
+              <svg class="animate-spin h-5 w-5 sm:h-6 sm:w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span class="text-lg">Connexion en cours...</span>
+              <span class="text-base sm:text-lg">Connexion en cours...</span>
             </span>
           {:else}
             <span class="relative flex items-center justify-center gap-2 text-white drop-shadow-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
               </svg>
-              <span class="text-lg">Se connecter</span>
+              <span class="text-base sm:text-lg">Se connecter</span>
             </span>
           {/if}
         </button>
       </form>
 
       <!-- Registration Links -->
-      <div class="mt-8 pt-6 border-t-2 border-gray-100">
-        <p class="text-center text-sm text-gray-700 font-semibold mb-4">Pas encore de compte ?</p>
-        <div class="grid grid-cols-2 gap-3">
+      <div class="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t-2 border-gray-100">
+        <p class="text-center text-sm text-gray-700 font-semibold mb-3 sm:mb-4">Pas encore de compte ?</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button 
             type="button" 
             on:click={() => navigate('/register/patient')} 

@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { AxiosError, AxiosResponse } from 'axios';
 
 // API Base URL - adjust based on environment
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 // Create axios instance
 const api = axios.create({
@@ -173,6 +173,8 @@ export interface DoctorRegistrationData {
   phone?: string;
   gender?: string;
   specialization: string;
+  city?: string;
+  country?: string;
   consultation_fee?: number;
   bio?: string;
   languages_spoken?: string;
@@ -202,6 +204,11 @@ export interface MessageResponse {
 // Statistics (Public)
 export const getStatistics = async (): Promise<StatisticsResponse> => {
   const response = await api.get<StatisticsResponse>('/api/v1/auth/statistics');
+  return response.data;
+};
+
+export const getDetailedStatistics = async (): Promise<StatisticsResponse> => {
+  const response = await api.get<StatisticsResponse>('/api/v1/admin/statistics');
   return response.data;
 };
 

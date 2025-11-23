@@ -127,15 +127,15 @@
   <div class="max-w-4xl mx-auto space-y-12">
     <!-- Header -->
     <div class="text-center mb-10 animate-slide-down">
-      <div class="inline-block mb-6 relative">
-        <div class="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto shadow-lg animate-bounce bg-gradient-to-br from-purple-500 via-indigo-500 to-purple-600">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="inline-block mb-4 sm:mb-6 relative">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto shadow-lg animate-bounce bg-gradient-to-br from-purple-500 via-indigo-500 to-purple-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-10 sm:w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
         </div>
       </div>
-      <h1 class="text-4xl md:text-5xl font-bold mb-3 text-gray-900">Inscription Patient</h1>
-      <p class="text-lg text-gray-700 font-medium">Créez votre compte pour accéder aux services médicaux</p>
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-3 text-gray-900">Inscription Patient</h1>
+      <p class="text-base sm:text-lg text-gray-700 font-medium">Créez votre compte pour accéder aux services médicaux</p>
     </div>
 
     {#if success && registrationResult}
@@ -182,11 +182,11 @@
       <!-- Registration Form -->
       <div class="card hover-lift">
         <!-- Step Indicator -->
-        <div class="flex items-center justify-center gap-4 mb-10">
-          <div class="flex flex-col items-center gap-2">
-            <div class="flex items-center justify-center w-14 h-14 rounded-2xl font-bold text-lg transition-all duration-300 {currentStep === 1 ? 'bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 text-white shadow-xl scale-110 ring-4 ring-primary-200' : currentStep > 1 ? 'bg-gradient-to-br from-success to-success-dark text-white shadow-md' : 'bg-gray-200 text-gray-500'}">
+        <div class="flex items-center justify-center gap-2 sm:gap-4 mb-8 sm:mb-10">
+          <div class="flex flex-col items-center gap-1 sm:gap-2">
+            <div class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 {currentStep === 1 ? 'bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 text-white shadow-xl scale-110 ring-4 ring-primary-200' : currentStep > 1 ? 'bg-gradient-to-br from-success to-success-dark text-white shadow-md' : 'bg-gray-200 text-gray-500'}">
               {#if currentStep > 1}
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                 </svg>
               {:else}
@@ -196,12 +196,12 @@
             <span class="text-xs font-bold {currentStep === 1 ? 'text-purple-700' : currentStep > 1 ? 'text-purple-600' : 'text-gray-500'}">Base</span>
           </div>
           
-          <div class="w-20 h-1.5 rounded-full transition-all duration-500 {currentStep > 1 ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-md' : 'bg-gray-300'}"></div>
+          <div class="w-12 sm:w-20 h-1.5 rounded-full transition-all duration-500 {currentStep > 1 ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-md' : 'bg-gray-300'}"></div>
           
-          <div class="flex flex-col items-center gap-2">
-            <div class="flex items-center justify-center w-14 h-14 rounded-2xl font-bold text-lg transition-all duration-300 {currentStep === 2 ? 'bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 text-white shadow-xl scale-110 ring-4 ring-purple-200' : currentStep > 2 ? 'bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-md' : 'bg-gray-300 text-gray-600'}">
+          <div class="flex flex-col items-center gap-1 sm:gap-2">
+            <div class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 {currentStep === 2 ? 'bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 text-white shadow-xl scale-110 ring-4 ring-purple-200' : currentStep > 2 ? 'bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-md' : 'bg-gray-300 text-gray-600'}">
               {#if currentStep > 2}
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                 </svg>
               {:else}
@@ -211,10 +211,10 @@
             <span class="text-xs font-bold {currentStep === 2 ? 'text-purple-700' : currentStep > 2 ? 'text-purple-600' : 'text-gray-500'}">Personnel</span>
           </div>
           
-          <div class="w-20 h-1.5 rounded-full transition-all duration-500 {currentStep > 2 ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-md' : 'bg-gray-300'}"></div>
+          <div class="w-12 sm:w-20 h-1.5 rounded-full transition-all duration-500 {currentStep > 2 ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-md' : 'bg-gray-300'}"></div>
           
-          <div class="flex flex-col items-center gap-2">
-            <div class="flex items-center justify-center w-14 h-14 rounded-2xl font-bold text-lg transition-all duration-300 {currentStep === 3 ? 'bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 text-white shadow-xl scale-110 ring-4 ring-purple-200' : 'bg-gray-300 text-gray-600'}">
+          <div class="flex flex-col items-center gap-1 sm:gap-2">
+            <div class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 {currentStep === 3 ? 'bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 text-white shadow-xl scale-110 ring-4 ring-purple-200' : 'bg-gray-300 text-gray-600'}">
               3
             </div>
             <span class="text-xs font-bold {currentStep === 3 ? 'text-purple-700' : 'text-gray-500'}">Urgence</span>
@@ -244,16 +244,16 @@
           {#if currentStep === 1}
             <!-- Step 1: Basic Information -->
             <div class="space-y-5 animate-fade-in">
-              <div class="relative mb-6 p-5 rounded-2xl bg-gradient-to-r from-purple-50 via-indigo-50 to-purple-50 border-l-4 border-purple-600 shadow-sm">
-                <div class="flex items-center gap-4">
-                  <div class="w-16 h-16 rounded-xl flex items-center justify-center bg-gradient-to-br from-purple-500 to-purple-700 shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="relative mb-4 sm:mb-6 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-purple-50 via-indigo-50 to-purple-50 border-l-4 border-purple-600 shadow-sm">
+                <div class="flex items-center gap-3 sm:gap-4">
+                  <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl flex items-center justify-center bg-gradient-to-br from-purple-500 to-purple-700 shadow-lg flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 class="text-2xl font-bold text-gray-900">Informations de base</h3>
-                    <p class="text-sm text-purple-700 font-semibold mt-1">Créez votre identifiant et mot de passe</p>
+                    <h3 class="text-xl sm:text-2xl font-bold text-gray-900">Informations de base</h3>
+                    <p class="text-xs sm:text-sm text-purple-700 font-semibold mt-0.5 sm:mt-1">Créez votre identifiant et mot de passe</p>
                   </div>
                 </div>
               </div>
@@ -318,7 +318,7 @@
                       class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-primary-600 transition-colors"
                       on:click={() => showPassword = !showPassword}
                       tabindex="-1"
-                      aria-label="Toggle password visibility"
+                      aria-label="Afficher ou masquer le mot de passe"
                     >
                       {#if showPassword}
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -382,7 +382,7 @@
                       class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-primary-600 transition-colors"
                       on:click={() => showConfirmPassword = !showConfirmPassword}
                       tabindex="-1"
-                      aria-label="Toggle confirm password visibility"
+                      aria-label="Afficher ou masquer la confirmation du mot de passe"
                     >
                       {#if showConfirmPassword}
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -419,15 +419,15 @@
               <button 
                 type="button" 
                 on:click={handleNextStep} 
-                class="group relative px-12 py-3 rounded-xl font-semibold shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none animate-slide-in-right overflow-hidden" 
+                class="group relative w-full sm:w-auto px-8 sm:px-12 py-3 rounded-xl font-semibold shadow-lg hover:shadow-2xl transform active:scale-95 sm:hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none animate-slide-in-right overflow-hidden touch-target" 
                 disabled={loading}
               >
                 <div class="absolute inset-0 bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600 opacity-90"></div>
                 <div class="absolute inset-0 bg-white/20 backdrop-blur-sm"></div>
                 <div class="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <span class="relative flex items-center justify-center gap-2 text-white drop-shadow-lg">
-                  <span class="text-lg font-bold">Suivant</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <span class="text-base sm:text-lg font-bold">Suivant</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </span>
@@ -438,16 +438,16 @@
           {#if currentStep === 2}
             <!-- Step 2: Personal Information -->
             <div class="space-y-5 animate-fade-in">
-              <div class="relative mb-6 p-5 rounded-2xl bg-gradient-to-r from-indigo-50 via-purple-50 to-indigo-50 border-l-4 border-indigo-600 shadow-sm">
-                <div class="flex items-center gap-4">
-                  <div class="w-16 h-16 rounded-xl flex items-center justify-center bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="relative mb-4 sm:mb-6 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-indigo-50 via-purple-50 to-indigo-50 border-l-4 border-indigo-600 shadow-sm">
+                <div class="flex items-center gap-3 sm:gap-4">
+                  <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl flex items-center justify-center bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-lg flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 class="text-2xl font-bold text-gray-900">Informations personnelles</h3>
-                    <p class="text-sm text-indigo-700 font-semibold mt-1">Partagez vos coordonnées</p>
+                    <h3 class="text-xl sm:text-2xl font-bold text-gray-900">Informations personnelles</h3>
+                    <p class="text-xs sm:text-sm text-indigo-700 font-semibold mt-0.5 sm:mt-1">Partagez vos coordonnées</p>
                   </div>
                 </div>
               </div>
@@ -493,11 +493,11 @@
               </div>
             </div>
 
-            <div class="flex gap-4 pt-4">
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
               <button 
                 type="button" 
                 on:click={prevStep} 
-                class="group relative flex-1 px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none animate-slide-in-left overflow-hidden" 
+                class="group relative flex-1 px-4 sm:px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transform active:scale-95 sm:hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none animate-slide-in-left overflow-hidden touch-target" 
                 disabled={loading}
               >
                 <div class="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200"></div>
@@ -505,24 +505,24 @@
                 <div class="absolute inset-0 border-2 border-purple-400/30 rounded-xl"></div>
                 <div class="absolute inset-0 bg-gradient-to-br from-purple-100/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <span class="relative flex items-center justify-center gap-2 text-gray-700 group-hover:text-purple-700 transition-colors duration-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:-translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 group-hover:-translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
                   </svg>
-                  <span class="text-lg font-bold">Précédent</span>
+                  <span class="text-base sm:text-lg font-bold">Précédent</span>
                 </span>
               </button>
               <button 
                 type="button" 
                 on:click={nextStep} 
-                class="group relative flex-1 px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none animate-slide-in-right overflow-hidden" 
+                class="group relative flex-1 px-4 sm:px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-2xl transform active:scale-95 sm:hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none animate-slide-in-right overflow-hidden touch-target" 
                 disabled={loading}
               >
                 <div class="absolute inset-0 bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600 opacity-90"></div>
                 <div class="absolute inset-0 bg-white/20 backdrop-blur-sm"></div>
                 <div class="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <span class="relative flex items-center justify-center gap-2 text-white drop-shadow-lg">
-                  <span class="text-lg font-bold">Suivant</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <span class="text-base sm:text-lg font-bold">Suivant</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </span>
@@ -533,16 +533,16 @@
           {#if currentStep === 3}
             <!-- Step 3: Emergency Contact -->
             <div class="space-y-5 animate-fade-in">
-              <div class="relative mb-6 p-5 rounded-2xl bg-gradient-to-r from-rose-50 via-pink-50 to-rose-50 border-l-4 border-rose-600 shadow-sm">
-                <div class="flex items-center gap-4">
-                  <div class="w-16 h-16 rounded-xl flex items-center justify-center bg-gradient-to-br from-rose-500 to-rose-700 shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="relative mb-4 sm:mb-6 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-rose-50 via-pink-50 to-rose-50 border-l-4 border-rose-600 shadow-sm">
+                <div class="flex items-center gap-3 sm:gap-4">
+                  <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl flex items-center justify-center bg-gradient-to-br from-rose-500 to-rose-700 shadow-lg flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 class="text-2xl font-bold text-gray-900">Contact d'urgence</h3>
-                    <p class="text-sm text-rose-700 font-semibold mt-1">Pour votre sécurité et tranquillité</p>
+                    <h3 class="text-xl sm:text-2xl font-bold text-gray-900">Contact d'urgence</h3>
+                    <p class="text-xs sm:text-sm text-rose-700 font-semibold mt-0.5 sm:mt-1">Pour votre sécurité et tranquillité</p>
                   </div>
                 </div>
               </div>
@@ -606,11 +606,11 @@
               </div>
             </div>
 
-            <div class="flex gap-4 pt-4">
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
               <button 
                 type="button" 
                 on:click={prevStep} 
-                class="group relative flex-1 px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none animate-slide-in-left overflow-hidden" 
+                class="group relative flex-1 px-4 sm:px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transform active:scale-95 sm:hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none animate-slide-in-left overflow-hidden touch-target" 
                 disabled={loading}
               >
                 <div class="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200"></div>
@@ -618,15 +618,15 @@
                 <div class="absolute inset-0 border-2 border-purple-400/30 rounded-xl"></div>
                 <div class="absolute inset-0 bg-gradient-to-br from-purple-100/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <span class="relative flex items-center justify-center gap-2 text-gray-700 group-hover:text-purple-700 transition-colors duration-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:-translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 group-hover:-translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
                   </svg>
-                  <span class="text-lg font-bold">Précédent</span>
+                  <span class="text-base sm:text-lg font-bold">Précédent</span>
                 </span>
               </button>
               <button 
                 type="submit" 
-                class="group relative flex-1 px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden {loading ? 'animate-pulse' : 'animate-slide-in-right'}" 
+                class="group relative flex-1 px-4 sm:px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-2xl transform active:scale-95 sm:hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden touch-target {loading ? 'animate-pulse' : 'animate-slide-in-right'}" 
                 disabled={loading}
               >
                 <div class="absolute inset-0 bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600 opacity-90"></div>
@@ -634,7 +634,7 @@
                 <div class="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 {#if loading}
                   <span class="relative flex items-center justify-center gap-2 text-white drop-shadow-lg">
-                    <svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg class="animate-spin h-5 w-5 sm:h-6 sm:w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>

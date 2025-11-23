@@ -27,13 +27,13 @@
   <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur opacity-25 group-hover:opacity-75 transition-opacity duration-500 -z-10"></div>
     
     <!-- Main Card -->
-    <div class="relative bg-white rounded-3xl p-8 shadow-2xl border-2 border-gray-100 overflow-hidden z-10">
+    <div class="relative bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl border-2 border-gray-100 overflow-hidden z-10">
       <!-- Animated background pattern -->
-  <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 group-hover:scale-150 transition-transform duration-1000 -z-10"></div>
+  <div class="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full blur-3xl -mr-24 sm:-mr-32 -mt-24 sm:-mt-32 opacity-50 group-hover:scale-150 transition-transform duration-1000 -z-10"></div>
       
       <!-- Status badge -->
-  <div class="absolute top-6 right-6 pointer-events-none">
-        <div class={`relative px-4 py-2 rounded-full font-bold text-sm shadow-lg transform transition-transform duration-300 ${
+  <div class="absolute top-3 right-3 sm:top-6 sm:right-6 pointer-events-none">
+        <div class={`relative px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-xs sm:text-sm shadow-lg transform transition-transform duration-300 ${
           appointment.status === 'confirmed' 
             ? 'bg-gradient-to-r from-green-400 to-emerald-600 text-white group-hover:scale-110' 
             : 'bg-gradient-to-r from-blue-400 to-indigo-600 text-white group-hover:scale-110'
@@ -47,19 +47,19 @@
       
       <div class="relative z-30">
         <!-- Doctor info -->
-  <div class="flex items-start gap-4 mb-6 relative">
-          <div class="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-xl transform group-hover:rotate-12 transition-transform duration-500">
+  <div class="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6 relative">
+          <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-white text-base sm:text-xl font-black shadow-xl transform group-hover:rotate-12 transition-transform duration-500 flex-shrink-0">
             {appointment.doctor_first_name?.[0]}{appointment.doctor_last_name?.[0]}
           </div>
-          <div class="flex-1">
-            <h4 class="text-xl font-black text-gray-900 group-hover:text-violet-600 transition-colors">
+          <div class="flex-1 min-w-0">
+            <h4 class="text-lg sm:text-xl font-black text-gray-900 group-hover:text-violet-600 transition-colors truncate">
               Dr. {appointment.doctor_first_name} {appointment.doctor_last_name}
             </h4>
-            <div class="flex items-center gap-2 mt-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="flex items-center gap-2 mt-1 sm:mt-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-violet-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span class="text-lg font-bold text-gray-900">
+              <span class="text-sm sm:text-lg font-bold text-gray-900 break-words">
                 {new Date(appointment.appointment_date).toLocaleDateString('fr-FR', { 
                   weekday: 'long', 
                   day: 'numeric', 
@@ -69,10 +69,10 @@
               </span>
             </div>
             <div class="flex items-center gap-2 mt-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-fuchsia-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-fuchsia-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span class="text-2xl font-black bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+              <span class="text-xl sm:text-2xl font-black bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
                 {formatTime(new Date(appointment.appointment_date))}
               </span>
             </div>
@@ -80,9 +80,9 @@
         </div>
 
         <!-- Consultation type -->
-        <div class="mb-6">
-          <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border-2 border-indigo-200">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="mb-4 sm:mb-6">
+          <div class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg sm:rounded-xl border-2 border-indigo-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
             <span class="font-bold text-indigo-700">
@@ -92,9 +92,9 @@
         </div>
 
         {#if appointment.reason}
-          <div class="mb-6 p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border-2 border-amber-200">
-            <div class="flex items-start gap-3">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl sm:rounded-2xl border-2 border-amber-200">
+            <div class="flex items-start gap-2 sm:gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <div>

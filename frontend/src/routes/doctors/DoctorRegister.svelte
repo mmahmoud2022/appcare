@@ -12,6 +12,8 @@
     phone: '',
     gender: '',
     specialization: '',
+    city: '',
+    country: 'France',
     consultation_fee: undefined,
     bio: '',
     languages_spoken: '',
@@ -122,18 +124,18 @@
 </script>
 
 <div class="page-shell">
-  <div class="max-w-4xl mx-auto space-y-12">
+  <div class="max-w-4xl mx-auto space-y-8 sm:space-y-12">
     <!-- Header with animated icon -->
-    <div class="text-center mb-10 animate-slide-down">
-      <div class="inline-block mb-6 relative">
-        <div class="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto shadow-lg animate-bounce bg-gradient-to-br from-emerald-500 to-emerald-700">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="text-center mb-6 sm:mb-10 animate-slide-down">
+      <div class="inline-block mb-4 sm:mb-6 relative">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto shadow-lg animate-bounce bg-gradient-to-br from-emerald-500 to-emerald-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-10 sm:w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         </div>
       </div>
-      <h1 class="text-4xl md:text-5xl font-bold mb-3 text-gray-900">Inscription Médecin</h1>
-      <p class="text-lg text-gray-700 font-medium">Rejoignez notre réseau de professionnels de santé</p>
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-3 text-gray-900">Inscription Médecin</h1>
+      <p class="text-base sm:text-lg text-gray-700 font-medium px-4">Rejoignez notre réseau de professionnels de santé</p>
     </div>
 
     {#if success && registrationResult}
@@ -195,27 +197,27 @@
       <!-- Registration Form -->
       <div class="card hover-lift">
         <!-- Step Indicator -->
-        <div class="flex items-center justify-center gap-6 mb-10">
-          <div class="flex flex-col items-center gap-2">
-            <div class="flex items-center justify-center w-16 h-16 rounded-2xl font-bold text-xl transition-all duration-300 {currentStep === 1 ? 'bg-gradient-to-br from-success via-accent-emerald to-success-dark text-white shadow-xl scale-110 ring-4 ring-success-light' : currentStep > 1 ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-md' : 'bg-gray-200 text-gray-500'}">
+        <div class="flex items-center justify-center gap-3 sm:gap-6 mb-6 sm:mb-10 px-4">
+          <div class="flex flex-col items-center gap-1 sm:gap-2">
+            <div class="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl font-bold text-lg sm:text-xl transition-all duration-300 {currentStep === 1 ? 'bg-gradient-to-br from-success via-accent-emerald to-success-dark text-white shadow-xl scale-110 ring-2 sm:ring-4 ring-success-light' : currentStep > 1 ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-md' : 'bg-gray-200 text-gray-500'}">
               {#if currentStep > 1}
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-7 sm:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                 </svg>
               {:else}
                 1
               {/if}
             </div>
-            <span class="text-sm font-bold {currentStep === 1 ? 'text-emerald-700' : currentStep > 1 ? 'text-emerald-600' : ' text-gray-500'}">Personnel</span>
+            <span class="text-xs sm:text-sm font-bold {currentStep === 1 ? 'text-emerald-700' : currentStep > 1 ? 'text-emerald-600' : ' text-gray-500'}">Personnel</span>
           </div>
           
-          <div class="w-24 h-2 rounded-full transition-all duration-500 {currentStep > 1 ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-md' : 'bg-gray-300'}"></div>
+          <div class="w-16 sm:w-24 h-1.5 sm:h-2 rounded-full transition-all duration-500 {currentStep > 1 ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-md' : 'bg-gray-300'}"></div>
           
-          <div class="flex flex-col items-center gap-2">
-            <div class="flex items-center justify-center w-16 h-16 rounded-2xl font-bold text-xl transition-all duration-300 {currentStep === 2 ? 'bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 text-white shadow-xl scale-110 ring-4 ring-emerald-200' : 'bg-gray-300 text-gray-600'}">
+          <div class="flex flex-col items-center gap-1 sm:gap-2">
+            <div class="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl font-bold text-lg sm:text-xl transition-all duration-300 {currentStep === 2 ? 'bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 text-white shadow-xl scale-110 ring-2 sm:ring-4 ring-emerald-200' : 'bg-gray-300 text-gray-600'}">
               2
             </div>
-            <span class="text-sm font-bold {currentStep === 2 ? 'text-emerald-700' : 'text-gray-500'}">Professionnel</span>
+            <span class="text-xs sm:text-sm font-bold {currentStep === 2 ? 'text-emerald-700' : 'text-gray-500'}">Professionnel</span>
           </div>
         </div>
 
@@ -316,7 +318,7 @@
                       class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-success transition-colors"
                       on:click={() => showPassword = !showPassword}
                       tabindex="-1"
-                      aria-label="Toggle password visibility"
+                      aria-label="Afficher ou masquer le mot de passe"
                     >
                       {#if showPassword}
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -380,7 +382,7 @@
                       class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-success transition-colors"
                       on:click={() => showConfirmPassword = !showConfirmPassword}
                       tabindex="-1"
-                      aria-label="Toggle confirm password visibility"
+                      aria-label="Afficher ou masquer la confirmation du mot de passe"
                     >
                       {#if showConfirmPassword}
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -481,15 +483,54 @@
 
               <div>
                 <label for="specialization" class="form-label">Spécialisation *</label>
-                <input
+                <select
                   id="specialization"
-                  type="text"
                   bind:value={formData.specialization}
                   class="input-field"
-                  placeholder="Cardiologie, Pédiatrie, Médecine Générale..."
                   required
                   disabled={loading}
-                />
+                >
+                  <option value="">Sélectionnez une spécialité...</option>
+                  <option value="general_practitioner">Médecin généraliste</option>
+                  <option value="cardiologist">Cardiologue</option>
+                  <option value="dermatologist">Dermatologue</option>
+                  <option value="pediatrician">Pédiatre</option>
+                  <option value="gynecologist">Gynécologue</option>
+                  <option value="psychiatrist">Psychiatre</option>
+                  <option value="ophthalmologist">Ophtalmologue</option>
+                  <option value="dentist">Dentiste</option>
+                  <option value="orthopedist">Orthopédiste</option>
+                  <option value="neurologist">Neurologue</option>
+                  <option value="radiologist">Radiologue</option>
+                  <option value="surgeon">Chirurgien</option>
+                  <option value="other">Autre</option>
+                </select>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label for="city" class="form-label">Ville d'exercice</label>
+                  <input
+                    id="city"
+                    type="text"
+                    bind:value={formData.city}
+                    class="input-field"
+                    placeholder="Paris, Lyon, Marseille..."
+                    disabled={loading}
+                  />
+                </div>
+
+                <div>
+                  <label for="country" class="form-label">Pays</label>
+                  <input
+                    id="country"
+                    type="text"
+                    bind:value={formData.country}
+                    class="input-field"
+                    placeholder="France"
+                    disabled={loading}
+                  />
+                </div>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -504,7 +545,7 @@
                     min="0"
                     disabled={loading}
                   />
-                  <p class="form-helper">💶 En centimes (ex: 5000 = 50€)</p>
+                  <p class="form-helper">💰 En FCFA (ex: 5000 FCFA)</p>
                 </div>
 
                 <div>
@@ -546,15 +587,15 @@
                 <div class="absolute inset-0 border-2 border-emerald-400/30 rounded-xl"></div>
                 <div class="absolute inset-0 bg-gradient-to-br from-emerald-100/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <span class="relative flex items-center justify-center gap-2 text-gray-700 group-hover:text-emerald-700 transition-colors duration-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:-translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 group-hover:-translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
                   </svg>
-                  <span class="text-lg font-bold">Précédent</span>
+                  <span class="text-base sm:text-lg font-bold">Précédent</span>
                 </span>
               </button>
               <button 
                 type="submit" 
-                class="group relative flex-1 px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden {loading ? 'animate-pulse' : 'animate-slide-in-right'}" 
+                class="group relative flex-1 px-4 sm:px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-2xl transform hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden {loading ? 'animate-pulse' : 'animate-slide-in-right'}" 
                 disabled={loading}
               >
                 <div class="absolute inset-0 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 opacity-90"></div>
@@ -562,18 +603,18 @@
                 <div class="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 {#if loading}
                   <span class="relative flex items-center justify-center gap-2 text-white drop-shadow-lg">
-                    <svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg class="animate-spin h-5 w-5 sm:h-6 sm:w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span class="text-lg font-bold">Inscription en cours...</span>
+                    <span class="text-base sm:text-lg font-bold">Inscription...</span>
                   </span>
                 {:else}
                   <span class="relative flex items-center justify-center gap-2 text-white drop-shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                     </svg>
-                    <span class="text-lg font-bold">Créer mon compte</span>
+                    <span class="text-base sm:text-lg font-bold">Créer mon compte</span>
                   </span>
                 {/if}
               </button>

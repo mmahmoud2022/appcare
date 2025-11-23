@@ -11,6 +11,7 @@
     activateUser,
     deleteUser,
     getStatistics,
+    getDetailedStatistics,
     logout,
   } from '../../lib/api';
   import type { User, AdminActionResponse, StatisticsResponse } from '../../lib/api';
@@ -52,7 +53,7 @@
     errorMessage = '';
     try {
       const [stats, users, pending] = await Promise.all([
-        getStatistics(),
+        getDetailedStatistics(),
         getAllUsers(),
         getPendingDoctors(),
       ]);
@@ -187,40 +188,40 @@
 <div class="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
   <!-- Header -->
   <header class="bg-white/80 backdrop-blur-lg border-b-2 border-orange-100 shadow-md sticky top-0 z-10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+        <div class="flex items-center gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-7 sm:w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-900">Tableau de bord Admin</h1>
-            <p class="text-sm text-gray-600 font-medium">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Tableau de bord Admin</h1>
+            <p class="text-xs sm:text-sm text-gray-600 font-medium">
               Bienvenue, {currentUser ? `${currentUser.first_name} ${currentUser.last_name}` : 'Admin'}
             </p>
           </div>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <button 
             on:click={() => navigate('/dashboard')}
-            class="px-4 py-2 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+            class="flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl border-2 border-gray-300 text-gray-700 text-sm sm:text-base font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 active:scale-95 touch-target"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 inline-block mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
-            Dashboard
+            <span class="hide-mobile">Dashboard</span>
           </button>
           <button 
             on:click={handleLogout}
-            class="group relative px-4 py-2 rounded-xl font-bold shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
+            class="group relative flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl font-bold shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden active:scale-95 touch-target"
           >
             <div class="absolute inset-0 bg-gradient-to-r from-red-500 to-rose-600 opacity-90"></div>
             <div class="absolute inset-0 bg-white/20"></div>
             <div class="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <span class="relative flex items-center gap-2 text-white drop-shadow-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <span class="relative flex items-center justify-center gap-1 sm:gap-2 text-white drop-shadow-lg text-sm sm:text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
               Déconnexion
@@ -271,17 +272,17 @@
 
     <!-- Statistics Cards -->
     {#if statistics}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <!-- Total Users -->
-        <div class="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-gray-100 p-6 hover:shadow-xl transition-all duration-300 overflow-hidden group">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-purple-500/20 rounded-full -mr-16 -mt-16 group-hover:scale-125 transition-transform duration-500"></div>
+        <div class="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border-2 border-gray-100 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 overflow-hidden group">
+          <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-blue-400/20 to-purple-500/20 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16 group-hover:scale-125 transition-transform duration-500"></div>
           <div class="relative flex items-center justify-between">
             <div>
-              <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">Total Utilisateurs</p>
-              <p class="text-4xl font-bold text-gray-900">{statistics.total_users}</p>
+              <p class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">Total Utilisateurs</p>
+              <p class="text-3xl sm:text-4xl font-bold text-gray-900">{statistics.total_users}</p>
             </div>
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
@@ -289,15 +290,15 @@
         </div>
 
         <!-- Doctors -->
-        <div class="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-gray-100 p-6 hover:shadow-xl transition-all duration-300 overflow-hidden group">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-400/20 to-teal-500/20 rounded-full -mr-16 -mt-16 group-hover:scale-125 transition-transform duration-500"></div>
+        <div class="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border-2 border-gray-100 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 overflow-hidden group">
+          <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-emerald-400/20 to-teal-500/20 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16 group-hover:scale-125 transition-transform duration-500"></div>
           <div class="relative flex items-center justify-between">
             <div>
-              <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">Médecins</p>
-              <p class="text-4xl font-bold text-gray-900">{statistics.total_doctors}</p>
+              <p class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">Médecins</p>
+              <p class="text-3xl sm:text-4xl font-bold text-gray-900">{statistics.total_doctors}</p>
             </div>
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -305,15 +306,15 @@
         </div>
 
         <!-- Patients -->
-        <div class="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-gray-100 p-6 hover:shadow-xl transition-all duration-300 overflow-hidden group">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full -mr-16 -mt-16 group-hover:scale-125 transition-transform duration-500"></div>
+        <div class="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border-2 border-gray-100 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 overflow-hidden group">
+          <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16 group-hover:scale-125 transition-transform duration-500"></div>
           <div class="relative flex items-center justify-between">
             <div>
-              <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">Patients</p>
-              <p class="text-4xl font-bold text-gray-900">{statistics.total_patients}</p>
+              <p class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">Patients</p>
+              <p class="text-3xl sm:text-4xl font-bold text-gray-900">{statistics.total_patients}</p>
             </div>
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             </div>
@@ -321,15 +322,15 @@
         </div>
 
         <!-- Pending -->
-        <div class="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-gray-100 p-6 hover:shadow-xl transition-all duration-300 overflow-hidden group">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-400/20 to-amber-500/20 rounded-full -mr-16 -mt-16 group-hover:scale-125 transition-transform duration-500"></div>
+        <div class="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border-2 border-gray-100 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 overflow-hidden group">
+          <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-orange-400/20 to-amber-500/20 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16 group-hover:scale-125 transition-transform duration-500"></div>
           <div class="relative flex items-center justify-between">
             <div>
-              <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">En Attente</p>
-              <p class="text-4xl font-bold text-gray-900">{statistics.pending_doctors}</p>
+              <p class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">En Attente</p>
+              <p class="text-3xl sm:text-4xl font-bold text-gray-900">{statistics.pending_doctors}</p>
             </div>
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -339,7 +340,7 @@
     {/if}
 
     <!-- Detailed Statistics Sections -->
-    {#if statistics}
+    {#if statistics && statistics.patients && statistics.doctors}
       <!-- Patient Statistics Section -->
       <div class="mb-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-gray-100 overflow-hidden">
         <!-- svelte-ignore a11y-click-events-have-key-events -->

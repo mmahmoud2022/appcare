@@ -369,8 +369,8 @@
 
   <!-- Main Chat Interface -->
   <div class="flex h-[700px] bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border-2 border-gray-100 overflow-hidden">
-    <!-- Conversations Sidebar -->
-    <div class="w-96 border-r border-gray-200 flex flex-col bg-gradient-to-b from-gray-50 to-white">
+  <!-- Conversations Sidebar -->
+  <div class="w-full sm:w-80 md:w-96 border-r border-gray-200 flex flex-col bg-gradient-to-b from-gray-50 to-white">
       <!-- Search Bar -->
       <div class="p-6 border-b border-gray-200">
         <div class="relative mb-3">

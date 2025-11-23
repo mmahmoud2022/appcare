@@ -80,13 +80,13 @@
   const consultationLabels: Record<ConsultationType, string> = {
     in_person: 'En cabinet',
     teleconsultation: 'Téléconsultation',
-    both: 'Cabinet & Téléconsultation'
+    both: 'Cabinet ou Téléconsultation'
   };
 
   const consultationIcons: Record<ConsultationType, string> = {
     in_person: '🏥',
     teleconsultation: '💻',
-    both: '🏥💻'
+    both: '🏥 💻'
   };
 
   const handleBook = (doctor: DoctorSearchResult) => {
@@ -103,44 +103,47 @@
   };
 </script>
 
-<div class="space-y-6">
+<div class="space-y-4 sm:space-y-6">
   <!-- Hero Header with Gradient -->
-  <div class="relative overflow-hidden bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 rounded-3xl shadow-2xl p-8 md:p-12">
+  <div class="relative overflow-hidden bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 rounded-2xl sm:rounded-[1.75rem] md:rounded-3xl shadow-2xl p-4 sm:p-6 md:p-8 lg:p-12">
     <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
     <div class="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full -ml-48 -mb-48 blur-3xl"></div>
     <div class="relative z-10">
-      <div class="flex items-center gap-4 mb-4">
-        <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl animate-float">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <div class="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+        <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xl animate-float flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
-        <div>
-          <h2 class="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">Trouvez votre praticien</h2>
-          <p class="text-blue-100 text-sm md:text-base mt-1">Des milliers de professionnels de santé à votre écoute</p>
+        <div class="min-w-0">
+          <h2 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white drop-shadow-lg truncate">Trouvez votre praticien</h2>
+          <p class="text-blue-100 text-xs sm:text-sm md:text-base mt-1 hide-mobile">Des milliers de professionnels de santé à votre écoute</p>
         </div>
       </div>
       
       <!-- Quick Search Bar -->
-      <div class="mt-6 bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-2 flex items-center gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <input
-          type="text"
-          bind:value={filters.search}
-          on:keydown={(e) => e.key === 'Enter' && runSearch()}
-          placeholder="Recherchez par nom, spécialité, ville..."
-          class="flex-1 px-2 py-3 bg-transparent border-none focus:outline-none text-gray-900 placeholder-gray-500 font-medium"
-        />
+      <div class="mt-4 sm:mt-6 bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-2xl p-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+        <div class="flex items-center flex-1 gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            bind:value={filters.search}
+            on:keydown={(e) => e.key === 'Enter' && runSearch()}
+            placeholder="Nom, spécialité, ville..."
+            class="flex-1 px-2 py-3 bg-transparent border-none focus:outline-none text-gray-900 placeholder-gray-500 font-medium text-sm sm:text-base"
+          />
+        </div>
         <button
           on:click={runSearch}
-          class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all font-semibold shadow-lg hover:shadow-xl hover:scale-105 flex items-center gap-2"
+          class="w-full sm:w-auto px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 flex items-center justify-center gap-2 text-sm sm:text-base"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          Rechercher
+          <span class="hide-mobile">Rechercher</span>
+          <span class="show-mobile">Chercher</span>
         </button>
       </div>
       
@@ -148,7 +151,7 @@
       <div class="mt-4 flex justify-end">
         <button
           on:click={toggleFilters}
-          class="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-xl transition-all border border-white/20 flex items-center gap-2 font-medium"
+          class="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-xl transition-all border border-white/20 flex items-center justify-center gap-2 font-medium touch-target"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
@@ -170,8 +173,8 @@
           Affinez votre recherche
         </h3>
       </div>
-      <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div class="p-4 sm:p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           <div class="space-y-2">
             <label for="doctor-specialty-filter" class="block text-sm font-bold text-gray-700 flex items-center gap-2">
               <span class="text-lg">🎯</span>
@@ -337,11 +340,11 @@
       </div>
 
       <!-- Doctor Cards Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {#each results as doctor, i}
           <div 
             transition:fly={{ y: 30, duration: 400, delay: i * 50 }}
-            class="group bg-white border-2 border-gray-200 rounded-2xl p-6 hover:shadow-2xl hover:border-blue-300 transition-all duration-300 hover:-translate-y-1"
+            class="group bg-white border-2 border-gray-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:shadow-2xl hover:border-blue-300 transition-all duration-300 hover:-translate-y-1"
           >
             <!-- Doctor Header -->
             <div class="flex items-start gap-4 mb-4">

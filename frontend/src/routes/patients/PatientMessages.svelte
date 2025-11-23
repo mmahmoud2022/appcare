@@ -171,7 +171,7 @@
   <div class="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 opacity-50"></div>
   
   <!-- Conversations Sidebar -->
-  <div class="relative w-96 flex flex-col bg-white/80 backdrop-blur-xl border-r border-gray-200/50 z-10">
+  <div class="relative w-full sm:w-80 md:w-96 flex flex-col bg-white/80 backdrop-blur-xl border-r border-gray-200/50 z-10">
     <!-- Sidebar Header -->
     <div class="relative overflow-hidden">
       <div class="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>

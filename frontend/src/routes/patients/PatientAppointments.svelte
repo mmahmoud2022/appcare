@@ -794,36 +794,37 @@
     <div class="absolute bottom-0 right-0 w-72 h-72 bg-pink-300/20 rounded-full blur-3xl -mr-36 -mb-36 animate-blob animation-delay-2000"></div>
     <div class="absolute top-1/2 left-1/2 w-72 h-72 bg-purple-300/20 rounded-full blur-3xl -ml-36 -mt-36 animate-blob animation-delay-4000"></div>
     
-    <div class="relative bg-white/10 backdrop-blur-2xl rounded-[1.75rem] p-8 border border-white/20">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-6">
-          <div class="relative">
-            <div class="w-20 h-20 bg-gradient-to-br from-white/40 to-white/20 rounded-3xl flex items-center justify-center backdrop-blur-sm border-2 border-white/30 shadow-2xl transform hover:rotate-12 transition-transform duration-500">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+    <div class="relative bg-white/10 backdrop-blur-2xl rounded-2xl sm:rounded-[1.75rem] p-4 sm:p-6 md:p-8 border border-white/20">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+        <div class="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
+          <div class="relative flex-shrink-0">
+            <div class="w-14 h-14 sm:w-20 sm:h-20 bg-gradient-to-br from-white/40 to-white/20 rounded-2xl sm:rounded-3xl flex items-center justify-center backdrop-blur-sm border-2 border-white/30 shadow-2xl transform hover:rotate-12 transition-transform duration-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 sm:h-10 sm:w-10 text-white drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
-            <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg animate-pulse">
-              <span class="text-white text-xs font-black">{$upcomingAppointments.length}</span>
+            <div class="absolute -bottom-1 sm:-bottom-2 -right-1 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg animate-pulse">
+              <span class="text-white text-[10px] sm:text-xs font-black">{$upcomingAppointments.length}</span>
             </div>
           </div>
-          <div>
-            <h2 class="text-4xl font-black text-white drop-shadow-lg mb-2 tracking-tight">Mes Rendez-vous</h2>
-            <p class="text-lg text-white/90 font-medium">Gérez vos consultations en toute simplicité</p>
+          <div class="min-w-0 flex-1">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-white drop-shadow-lg mb-1 sm:mb-2 tracking-tight">Mes Rendez-vous</h2>
+            <p class="text-sm sm:text-base md:text-lg text-white/90 font-medium hide-mobile">Gérez vos consultations en toute simplicité</p>
           </div>
         </div>
         <button
           on:click={openBookingModal}
-          class="group relative px-8 py-4 bg-white text-purple-600 rounded-2xl hover:bg-white/90 transition-all shadow-2xl hover:shadow-3xl font-bold text-lg overflow-hidden transform hover:scale-105 active:scale-95"
+          class="group relative w-full sm:w-auto px-4 sm:px-6 md:px-8 py-3 sm:py-4 bg-white text-purple-600 rounded-xl sm:rounded-2xl hover:bg-white/90 transition-all shadow-2xl hover:shadow-3xl font-bold text-sm sm:text-base md:text-lg overflow-hidden transform active:scale-95 sm:hover:scale-105 touch-target"
         >
           <div class="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <div class="relative flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-90 transition-transform duration-500">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+          <div class="relative flex items-center justify-center gap-2 sm:gap-3">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-90 transition-transform duration-500 flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
               </svg>
             </div>
-            <span>Nouveau RDV</span>
+            <span class="hide-mobile">Nouveau RDV</span>
+            <span class="show-mobile">Nouveau</span>
           </div>
         </button>
       </div>
@@ -875,7 +876,7 @@
             </div>
           </div>
           <div>
-            <h3 class="text-3xl font-black text-gray-900">À venir</h3>
+            <h3 class="text-2xl sm:text-3xl font-black text-gray-900">À venir</h3>
             <p class="text-gray-600">Vos prochaines consultations</p>
           </div>
         </div>
@@ -1045,7 +1046,7 @@
           </div>
         {:else}
           <div 
-            class="relative overflow-hidden bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 rounded-3xl p-16 text-center border-2 border-dashed border-gray-300"
+            class="relative overflow-hidden bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 rounded-2xl sm:rounded-3xl p-8 sm:p-12 md:p-16 text-center border-2 border-dashed border-gray-300"
             transition:scale={{ duration: 400, easing: elasticOut }}
           >
             <div class="absolute top-0 left-0 w-full h-full opacity-30">
@@ -1059,7 +1060,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 class="text-3xl font-black text-gray-900 mb-3">Aucun rendez-vous prévu</h3>
+              <h3 class="text-2xl sm:text-3xl font-black text-gray-900 mb-3">Aucun rendez-vous prévu</h3>
               <p class="text-lg text-gray-600 mb-6">Prenez soin de votre santé, réservez une consultation</p>
               <button
                 on:click={openBookingModal}
@@ -1086,7 +1087,7 @@
             </div>
           </div>
           <div>
-            <h3 class="text-3xl font-black text-gray-900">Historique</h3>
+            <h3 class="text-2xl sm:text-3xl font-black text-gray-900">Historique</h3>
             <p class="text-gray-600">Vos consultations passées</p>
           </div>
         </div>
@@ -1234,7 +1235,7 @@
           </div>
         {:else}
           <div 
-            class="relative overflow-hidden bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100 rounded-3xl p-16 text-center border-2 border-dashed border-gray-300"
+            class="relative overflow-hidden bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100 rounded-2xl sm:rounded-3xl p-8 sm:p-12 md:p-16 text-center border-2 border-dashed border-gray-300"
             transition:scale={{ duration: 400 }}
           >
             <div class="w-32 h-32 bg-gradient-to-br from-gray-300 to-gray-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
@@ -1242,7 +1243,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 class="text-3xl font-black text-gray-700 mb-3">Aucun historique disponible</h3>
+            <h3 class="text-2xl sm:text-3xl font-black text-gray-700 mb-3">Aucun historique disponible</h3>
             <p class="text-lg text-gray-600">Vos rendez-vous passés apparaîtront ici</p>
           </div>
         {/if}

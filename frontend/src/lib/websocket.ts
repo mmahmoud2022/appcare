@@ -36,9 +36,11 @@ export class DoctorScheduleSocket {
    */
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const wsUrl = `ws://localhost:8000/api/v1/ws/doctor/${this.doctorId}?token=${encodeURIComponent(this.token)}`;
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.host;
+      const wsUrl = `${protocol}//${host}/api/v1/ws/doctor/${this.doctorId}?token=${encodeURIComponent(this.token)}`;
       
-      console.log(`🔌 Connexion WebSocket à: ws://localhost:8000/api/v1/ws/doctor/${this.doctorId}`);
+      console.log(`🔌 Connexion WebSocket à: ${wsUrl}`);
       
       this.ws = new WebSocket(wsUrl);
 

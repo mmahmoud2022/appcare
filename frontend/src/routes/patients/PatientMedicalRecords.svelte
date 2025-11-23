@@ -51,7 +51,7 @@
         return;
       }
 
-      const response = await fetch(`http://localhost:8000/api/v1/patients/documents/${documentId}/download`, {
+      const response = await fetch(`/api/v1/patients/documents/${documentId}/download`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -88,24 +88,24 @@
     <div class="absolute top-0 left-0 w-72 h-72 bg-white/20 rounded-full blur-3xl -ml-36 -mt-36 animate-blob"></div>
     <div class="absolute bottom-0 right-0 w-72 h-72 bg-emerald-300/20 rounded-full blur-3xl -mr-36 -mb-36 animate-blob animation-delay-2000"></div>
     
-    <div class="relative bg-white/10 backdrop-blur-2xl rounded-[1.75rem] p-8 border border-white/20">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-6">
-          <div class="relative">
-            <div class="w-20 h-20 bg-gradient-to-br from-white/40 to-white/20 rounded-3xl flex items-center justify-center backdrop-blur-sm border-2 border-white/30 shadow-2xl transform hover:rotate-12 transition-transform duration-500">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+    <div class="relative bg-white/10 backdrop-blur-2xl rounded-2xl sm:rounded-[1.75rem] p-4 sm:p-6 md:p-8 border border-white/20">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3 sm:gap-6">
+          <div class="relative flex-shrink-0">
+            <div class="w-14 h-14 sm:w-20 sm:h-20 bg-gradient-to-br from-white/40 to-white/20 rounded-2xl sm:rounded-3xl flex items-center justify-center backdrop-blur-sm border-2 border-white/30 shadow-2xl transform hover:rotate-12 transition-transform duration-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 sm:h-10 sm:w-10 text-white drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
           </div>
-          <div>
-            <h2 class="text-4xl font-black text-white drop-shadow-lg mb-2 tracking-tight">Dossier Médical</h2>
-            <p class="text-lg text-white/90 font-medium">Vos archives de santé centralisées</p>
+          <div class="min-w-0">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-white drop-shadow-lg mb-1 sm:mb-2 tracking-tight">Dossier Médical</h2>
+            <p class="text-sm sm:text-base md:text-lg text-white/90 font-medium hide-mobile">Vos archives de santé centralisées</p>
           </div>
         </div>
         <button
           on:click={loadRecord}
-          class="group relative px-6 py-3 bg-white text-teal-600 rounded-2xl hover:bg-white/90 transition-all shadow-2xl hover:shadow-3xl font-bold overflow-hidden transform hover:scale-105 active:scale-95"
+          class="group relative w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-teal-600 rounded-xl sm:rounded-2xl hover:bg-white/90 transition-all shadow-2xl hover:shadow-3xl font-bold text-sm sm:text-base overflow-hidden transform active:scale-95 sm:hover:scale-105 touch-target"
           disabled={loading}
         >
           <div class="absolute inset-0 bg-gradient-to-r from-teal-600/20 to-cyan-600/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -121,21 +121,21 @@
   </div>
 
   <!-- Modern Tabs -->
-  <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border-2 border-gray-100 p-2">
-    <div class="flex gap-2">
+  <div class="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-xl border-2 border-gray-100 p-1 sm:p-2 overflow-x-auto">
+    <div class="flex gap-1 sm:gap-2 min-w-max">
       <button
         on:click={() => activeTab = 'appointments'}
-        class={`flex-1 px-6 py-4 rounded-2xl font-bold text-base transition-all duration-300 ${
+        class={`flex-1 min-w-[120px] px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm md:text-base transition-all duration-300 touch-target ${
           activeTab === 'appointments' 
-            ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg transform scale-105' 
+            ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg transform sm:scale-105' 
             : 'text-gray-600 hover:bg-gray-50'
         }`}
       >
-        <div class="flex items-center justify-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-          Rendez-vous
+          <span class="whitespace-nowrap">Rendez-vous</span>
         </div>
       </button>
       <button
@@ -352,7 +352,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 class="text-3xl font-black text-gray-900 mb-3">Aucun rendez-vous enregistré</h3>
+              <h3 class="text-2xl sm:text-3xl font-black text-gray-900 mb-3">Aucun rendez-vous enregistré</h3>
               <p class="text-lg text-gray-600">Vos consultations futures et passées apparaîtront ici</p>
             </div>
           </div>
@@ -454,7 +454,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 class="text-3xl font-black text-gray-900 mb-3">Aucun document disponible</h3>
+              <h3 class="text-2xl sm:text-3xl font-black text-gray-900 mb-3">Aucun document disponible</h3>
               <p class="text-lg text-gray-600">Vos documents médicaux seront stockés ici de manière sécurisée</p>
             </div>
           </div>
@@ -621,7 +621,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <h3 class="text-3xl font-black text-gray-900 mb-3">Aucune ordonnance disponible</h3>
+              <h3 class="text-2xl sm:text-3xl font-black text-gray-900 mb-3">Aucune ordonnance disponible</h3>
               <p class="text-lg text-gray-600">Vos prescriptions médicales seront accessibles ici</p>
             </div>
           </div>
@@ -637,7 +637,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         </div>
-        <h3 class="text-3xl font-black text-gray-700 mb-3">Aucune donnée disponible</h3>
+        <h3 class="text-2xl sm:text-3xl font-black text-gray-700 mb-3">Aucune donnée disponible</h3>
         <p class="text-lg text-gray-600">Votre dossier médical sera accessible ici</p>
       </div>
     {/if}

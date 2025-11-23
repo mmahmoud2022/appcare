@@ -327,8 +327,8 @@
 
 <div class="space-y-6">
   <!-- Header avec onglets -->
-  <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-    <div class="border-b border-gray-200">
+  <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="border-b border-gray-200 overflow-x-auto">
       <nav class="flex">
         <button
           on:click={() => activeTab = 'recurring'}

@@ -96,21 +96,21 @@
     <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
     <div class="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/10 rounded-full -ml-48 -mb-48 blur-3xl"></div>
     
-    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="relative">
-            <div class="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-lg flex items-center justify-center shadow-xl border border-white/20">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+          <div class="relative flex-shrink-0">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-white/15 backdrop-blur-lg flex items-center justify-center shadow-xl border border-white/20">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-400 rounded-full border-2 border-white shadow-lg"></div>
+            <div class="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-emerald-400 rounded-full border-2 border-white shadow-lg"></div>
           </div>
-          <div>
-            <h1 class="text-2xl md:text-3xl font-bold text-white">Tableau de bord</h1>
+          <div class="min-w-0">
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-white truncate">Tableau de bord</h1>
             {#if currentUser}
-              <p class="text-sm md:text-base text-blue-100 font-medium">
+              <p class="text-xs sm:text-sm md:text-base text-blue-100 font-medium truncate">
                 {currentUser.first_name} {currentUser.last_name}
               </p>
             {/if}
@@ -118,9 +118,9 @@
         </div>
         <button
           on:click={() => navigate('/')}
-          class="px-5 py-2.5 bg-white/10 backdrop-blur-md text-white hover:bg-white/20 font-semibold rounded-xl transition-all duration-300 border border-white/20 shadow-lg hover:shadow-xl flex items-center gap-2"
+          class="flex-shrink-0 px-3 sm:px-5 py-2 sm:py-2.5 bg-white/10 backdrop-blur-md text-white hover:bg-white/20 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl transition-all duration-300 border border-white/20 shadow-lg hover:shadow-xl flex items-center gap-1 sm:gap-2 active:scale-95 sm:hover:scale-105 touch-target"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
           <span class="hidden sm:inline">Déconnexion</span>
@@ -142,7 +142,7 @@
   {:else if dashboard}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Professional Stats Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6 sm:mb-8">
         <!-- Rendez-vous Card -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-no-static-element-interactions -->

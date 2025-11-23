@@ -211,29 +211,29 @@
 
   <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
     <!-- Tabs -->
-    <div class="border-b border-gray-200">
-      <nav class="flex -mb-px">
+    <div class="border-b border-gray-200 overflow-x-auto">
+      <nav class="flex -mb-px min-w-max">
         <button
           on:click={() => activeSection = 'profile'}
-          class="px-6 py-4 text-sm font-medium border-b-2 transition-colors {activeSection === 'profile' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700'}"
+          class="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap touch-target {activeSection === 'profile' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700'}"
         >
           Profil professionnel
         </button>
         <button
           on:click={() => activeSection = 'notifications'}
-          class="px-6 py-4 text-sm font-medium border-b-2 transition-colors {activeSection === 'notifications' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700'}"
+          class="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap touch-target {activeSection === 'notifications' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700'}"
         >
           Notifications
         </button>
         <button
           on:click={() => activeSection = 'preferences'}
-          class="px-6 py-4 text-sm font-medium border-b-2 transition-colors {activeSection === 'preferences' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700'}"
+          class="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap touch-target {activeSection === 'preferences' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700'}"
         >
           Préférences
         </button>
         <button
           on:click={() => activeSection = 'security'}
-          class="px-6 py-4 text-sm font-medium border-b-2 transition-colors {activeSection === 'security' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700'}"
+          class="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap touch-target {activeSection === 'security' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700'}"
         >
           Sécurité
         </button>
@@ -241,7 +241,7 @@
     </div>
 
     <!-- Content -->
-    <div class="p-6">
+    <div class="p-4 sm:p-6">
       {#if loading}
         <div class="flex items-center justify-center py-12">
           <svg class="animate-spin h-8 w-8 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -333,10 +333,10 @@
                 step="0.01"
               />
               <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
-                XOF
+                FCFA
               </span>
             </div>
-            <p class="mt-1 text-sm text-gray-500">💡 Tarif en Francs CFA (XOF)</p>
+            <p class="mt-1 text-sm text-gray-500">💰 Tarif en Francs CFA (FCFA)</p>
           </div>
 
           <div>

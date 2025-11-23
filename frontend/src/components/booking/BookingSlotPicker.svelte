@@ -83,28 +83,28 @@
 
 <div class="space-y-4">
   <!-- Header -->
-  <div class="flex items-center justify-between flex-wrap gap-3">
-    <div class="flex items-center gap-3">
-      <h4 class="text-base font-semibold text-gray-900">Créneaux disponibles</h4>
+  <div class="flex items-center justify-between flex-wrap gap-2 sm:gap-3">
+    <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+      <h4 class="text-sm sm:text-base font-semibold text-gray-900 truncate">Créneaux disponibles</h4>
       
       <!-- 🆕 Indicateur connexion WebSocket -->
       {#if wsConnected}
-        <div class="flex items-center gap-1.5 px-2 py-1 bg-green-50 border border-green-200 rounded-full" transition:fade>
-          <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span class="text-xs font-semibold text-green-700">Temps réel</span>
+        <div class="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-50 border border-green-200 rounded-full" transition:fade>
+          <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span class="text-[10px] sm:text-xs font-semibold text-green-700">Temps réel</span>
         </div>
       {/if}
     </div>
     
     <button
-      class="px-3 py-1.5 bg-violet-100 hover:bg-violet-200 text-violet-700 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors"
+      class="flex-shrink-0 px-2 sm:px-3 py-1 sm:py-1.5 bg-violet-100 hover:bg-violet-200 text-violet-700 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-1 sm:gap-2 transition-colors touch-target"
       on:click={onRefresh}
       disabled={availabilityLoading}
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 {availabilityLoading ? 'animate-spin' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4 {availabilityLoading ? 'animate-spin' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">oke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
       </svg>
-      Actualiser
+      <span class="hidden sm:inline">Actualiser</span>
     </button>
   </div>
   
@@ -171,11 +171,11 @@
       {/if}
       
       <!-- 🆕 Légende visuelle -->
-      <div class="flex items-center gap-3 text-xs text-gray-600 bg-gray-50 rounded-lg px-3 py-2 border border-gray-200">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <div class="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-gray-600 bg-gray-50 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <span class="flex-1">
+        <span class="flex-1 break-words">
           <span class="font-semibold text-blue-700">Bleu</span> = Cabinet • 
           <span class="font-semibold text-emerald-700">Vert</span> = Téléconsultation • 
           <span class="font-semibold text-purple-700">Mixte</span> = Au choix • 

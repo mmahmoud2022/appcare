@@ -178,31 +178,31 @@
 
 <div class="space-y-6">
   <!-- Header -->
-  <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl shadow-lg p-6 mb-6">
-    <div class="flex items-center justify-between">
-      <div>
-        <h2 class="text-3xl font-bold text-white mb-2">Mes Rendez-vous</h2>
-        <div class="flex items-center gap-4 text-emerald-50">
+  <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="w-full sm:w-auto">
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">Mes Rendez-vous</h2>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-emerald-50">
           <div class="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <span class="text-sm font-medium">{appointments.length} rendez-vous au total</span>
+            <span class="text-xs sm:text-sm font-medium">{appointments.length} rendez-vous au total</span>
           </div>
           {#if filteredAppointments.length !== appointments.length}
             <div class="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
-              <span class="text-sm font-medium">{filteredAppointments.length} affichés</span>
+              <span class="text-xs sm:text-sm font-medium">{filteredAppointments.length} affichés</span>
             </div>
           {/if}
         </div>
       </div>
-      <div class="bg-white/10 backdrop-blur-sm rounded-lg p-1">
+      <div class="w-full sm:w-auto bg-white/10 backdrop-blur-sm rounded-lg p-1">
         <select
           bind:value={filterStatus}
-          class="px-4 py-2.5 border-2 border-white/20 bg-white/90 backdrop-blur rounded-lg focus:ring-2 focus:ring-white focus:border-white transition-all font-medium text-gray-900 cursor-pointer"
+          class="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border-2 border-white/20 bg-white/90 backdrop-blur rounded-lg focus:ring-2 focus:ring-white focus:border-white transition-all font-medium text-gray-900 cursor-pointer"
         >
           <option value="all">📋 Tous les statuts</option>
           <option value="pending">⏳ En attente</option>

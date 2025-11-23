@@ -38,12 +38,12 @@
 </script>
 
 {#if show && selectedDoctor}
-  <div class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4" transition:fade={{ duration: 200 }}>
-    <div class="bg-white rounded-3xl max-w-4xl w-full shadow-2xl max-h-[95vh] flex flex-col overflow-hidden border-2 border-gray-100" transition:fly={{ y: 30, duration: 300, easing: elasticOut }}>
+  <div class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-2 sm:p-4" transition:fade={{ duration: 200 }}>
+    <div class="bg-white rounded-2xl sm:rounded-3xl max-w-4xl w-full shadow-2xl max-h-[95vh] flex flex-col overflow-hidden border-2 border-gray-100" transition:fly={{ y: 30, duration: 300, easing: elasticOut }}>
       
       <!-- Header -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-white">
-        <h3 class="text-xl font-bold text-gray-900">Nouveau Rendez-vous</h3>
+      <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-white">
+        <h3 class="text-lg sm:text-xl font-bold text-gray-900">Nouveau Rendez-vous</h3>
         <button 
           on:click={onClose} 
           class="w-8 h-8 hover:bg-gray-100 rounded-lg flex items-center justify-center transition-colors"
@@ -56,38 +56,38 @@
       </div>
 
       <!-- Content -->
-      <div class="p-6 flex flex-col gap-6 overflow-y-auto flex-1">
+      <div class="p-4 sm:p-6 flex flex-col gap-4 sm:gap-6 overflow-y-auto flex-1">
         <!-- Doctor Card -->
         <BookingDoctorCard doctor={selectedDoctor} />
 
         <!-- Selected Slot Summary -->
         {#if bookingPayload.appointment_date}
-          <div class="relative overflow-hidden bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 rounded-2xl p-5 shadow-xl border-2 border-violet-400" transition:fly={{ y: -20, duration: 300 }}>
+          <div class="relative overflow-hidden bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-xl border-2 border-violet-400" transition:fly={{ y: -20, duration: 300 }}>
             <div class="absolute inset-0 bg-grid-white/10"></div>
-            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+            <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full blur-3xl -mr-12 sm:-mr-16 -mt-12 sm:-mt-16"></div>
             
             <div class="relative z-10">
-              <div class="flex items-start gap-4">
+              <div class="flex items-start gap-3 sm:gap-4">
                 <!-- Success Icon -->
-                <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0 animate-bounce">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 animate-bounce">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 
-                <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-2">
-                    <h4 class="text-white font-bold text-lg">Créneau sélectionné</h4>
-                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1 sm:mb-2">
+                    <h4 class="text-white font-bold text-base sm:text-lg">Créneau sélectionné</h4>
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse flex-shrink-0"></div>
                   </div>
                   
-                  <div class="space-y-2">
+                  <div class="space-y-1 sm:space-y-2">
                     <!-- Date -->
                     <div class="flex items-center gap-2 text-white/95">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-white/80 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      <span class="font-semibold">
+                      <span class="font-semibold text-sm sm:text-base break-words">
                         {new Date(bookingPayload.appointment_date).toLocaleDateString('fr-FR', {
                           weekday: 'long',
                           day: 'numeric',
@@ -99,7 +99,7 @@
                     
                     <!-- Time -->
                     <div class="flex items-center gap-2 text-white/95">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-white/80 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span class="font-bold text-xl">
@@ -171,9 +171,9 @@
         />
 
         <!-- Form Fields -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="space-y-2 md:col-span-2">
-            <label for="booking-type" class="text-sm font-semibold text-gray-700">
+        <div class="grid grid-cols-1 gap-4">
+          <div class="space-y-2">
+            <label for="booking-type" class="text-xs sm:text-sm font-semibold text-gray-700">
               Type de consultation
             </label>
             <select
@@ -183,7 +183,7 @@
                 bookingPayload.schedule_entry_id = undefined;
                 onConsultationTypeChange();
               }}
-              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all bg-white"
+              class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all bg-white text-sm sm:text-base"
             >
               {#each consultationTypeOptions(selectedDoctor) as option}
                 <option value={option.value}>{option.label}</option>
@@ -191,15 +191,15 @@
             </select>
           </div>
 
-          <div class="space-y-2 md:col-span-2">
-            <label for="booking-reason" class="text-sm font-semibold text-gray-700">
+          <div class="space-y-2">
+            <label for="booking-reason" class="text-xs sm:text-sm font-semibold text-gray-700">
               Motif de consultation
             </label>
             <input
               id="booking-reason"
               type="text"
               bind:value={bookingPayload.reason}
-              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all bg-white"
+              class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all bg-white text-sm sm:text-base"
               placeholder="Ex: Consultation de suivi, urgence..."
             />
           </div>
@@ -232,17 +232,17 @@
       </div>
 
       <!-- Footer -->
-      <div class="p-4 bg-gray-50 border-t border-gray-200 flex gap-3 justify-end">
+      <div class="p-4 sm:p-5 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row gap-3 justify-end">
         <button
           on:click={onClose}
-          class="px-5 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-100 transition-all"
+          class="w-full sm:w-auto px-5 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-100 transition-all touch-target"
           disabled={bookingSubmitting}
         >
           Annuler
         </button>
         <button
           on:click={onSubmit}
-          class="px-5 py-2 bg-violet-600 text-white rounded-lg font-semibold hover:bg-violet-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full sm:w-auto px-5 py-3 sm:py-2 bg-violet-600 text-white rounded-lg font-semibold hover:bg-violet-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-target active:scale-95"
           disabled={bookingSubmitting || !bookingPayload.appointment_date}
         >
           {#if bookingSubmitting}

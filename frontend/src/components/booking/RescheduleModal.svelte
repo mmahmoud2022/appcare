@@ -136,34 +136,34 @@
 </script>
 
 {#if show && appointment}
-  <div class="fixed inset-0 flex items-center justify-center z-50 p-4" transition:fade={{ duration: 200 }}>
+  <div class="fixed inset-0 flex items-center justify-center z-50 p-2 sm:p-4" transition:fade={{ duration: 200 }}>
     <div class="absolute inset-0 bg-black/60 backdrop-blur-md pointer-events-none"></div>
-    <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden border-2 border-gray-100 relative z-[1] isolate pointer-events-auto" transition:fly={{ y: 30, duration: 300, easing: elasticOut }}>
+    <div class="bg-white rounded-2xl sm:rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden border-2 border-gray-100 relative z-[1] isolate pointer-events-auto" transition:fly={{ y: 30, duration: 300, easing: elasticOut }}>
       
       {#if !showConfirm}
         <!-- Écran de sélection -->
         <!-- Enhanced Header -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-8">
+        <div class="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-4 sm:p-6 md:p-8">
           <div class="absolute inset-0 bg-grid-white/10"></div>
           <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
-          <div class="relative flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border-2 border-white/30">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <div class="relative flex items-center justify-between gap-2">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xl border-2 border-white/30 flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <div>
-                <h3 class="text-2xl font-black text-white drop-shadow-lg">Replanifier le rendez-vous</h3>
-                <p class="text-white/90 font-medium">Choisissez un nouveau créneau</p>
+              <div class="min-w-0">
+                <h3 class="text-lg sm:text-xl md:text-2xl font-black text-white drop-shadow-lg truncate"><span class="hide-mobile">Replanifier le rendez-vous</span><span class="show-mobile">Replanifier</span></h3>
+                <p class="text-sm sm:text-base text-white/90 font-medium hide-mobile">Choisissez un nouveau créneau</p>
               </div>
             </div>
             <button 
               on:click={onClose} 
-              class="w-12 h-12 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl flex items-center justify-center transition-all border-2 border-white/30 hover:border-white/50 group"
+              class="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg sm:rounded-xl flex items-center justify-center transition-all border-2 border-white/30 hover:border-white/50 group flex-shrink-0 touch-target"
               title="Fermer"
             >
-              <svg class="h-6 w-6 text-white group-hover:rotate-90 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <svg class="h-5 w-5 sm:h-6 sm:w-6 text-white group-hover:rotate-90 transition-transform duration-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -171,9 +171,9 @@
         </div>
         
         <!-- Content -->
-        <div class="p-8 space-y-6 max-h-[calc(95vh-280px)] overflow-y-auto">
+        <div class="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-h-[calc(95vh-280px)] overflow-y-auto">
           <!-- Current Appointment Info -->
-          <div class="relative overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border-2 border-amber-200">
+          <div class="relative overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 border-2 border-amber-200">
             <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-200/30 to-orange-200/30 rounded-full blur-2xl -mr-16 -mt-16"></div>
             <div class="relative">
               <div class="flex items-center gap-3 mb-3">
@@ -199,7 +199,7 @@
                 </div>
                 Type de consultation
               </div>
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {#each consultationTypeOptions as option}
                   <button
                     type="button"
@@ -207,7 +207,7 @@
                       selectedConsultationType = option.value;
                       handleConsultationTypeChange();
                     }}
-                    class={`group relative overflow-hidden px-6 py-4 rounded-2xl font-bold transition-all transform hover:scale-105 active:scale-95 ${
+                    class={`group relative overflow-hidden px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold transition-all transform hover:scale-105 active:scale-95 touch-target ${
                       selectedConsultationType === option.value
                         ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xl'
                         : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-indigo-400 shadow-sm hover:shadow-md'
@@ -277,14 +277,14 @@
         </div>
         
         <!-- Footer -->
-        <div class="px-8 py-6 border-t-2 border-gray-200 flex gap-4 bg-gradient-to-r from-blue-50/30 via-indigo-50/30 to-purple-50/30">
+        <div class="px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-t-2 border-gray-200 flex flex-col sm:flex-row gap-3 sm:gap-4 bg-gradient-to-r from-blue-50/30 via-indigo-50/30 to-purple-50/30">
           <button
             on:click={onClose}
-            class="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 font-bold rounded-2xl hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm hover:shadow-md"
+            class="w-full sm:flex-1 px-4 sm:px-6 py-3 sm:py-4 border-2 border-gray-300 text-gray-700 font-bold rounded-xl sm:rounded-2xl hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm hover:shadow-md touch-target"
             disabled={submitting}
           >
             <span class="flex items-center justify-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
               Annuler
@@ -292,7 +292,7 @@
           </button>
           <button
             on:click={handleSubmit}
-            class="group relative flex-[2] px-6 py-4 rounded-2xl font-black shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all overflow-hidden transform hover:scale-105 active:scale-95"
+            class="group relative w-full sm:flex-[2] px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all overflow-hidden transform hover:scale-105 active:scale-95 touch-target"
             disabled={submitting || !selectedDate}
           >
             <div class="absolute inset-0 z-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 opacity-90"></div>
@@ -404,20 +404,20 @@
         </div>
         
         <!-- Footer -->
-        <div class="px-8 py-6 border-t-2 border-gray-200 flex gap-4 bg-gradient-to-r from-green-50/30 via-emerald-50/30 to-teal-50/30">
+        <div class="px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-t-2 border-gray-200 flex flex-col sm:flex-row gap-3 sm:gap-4 bg-gradient-to-r from-green-50/30 via-emerald-50/30 to-teal-50/30">
           <button
-            class="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 font-bold rounded-2xl hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm hover:shadow-md"
+            class="w-full sm:flex-1 px-4 sm:px-6 py-3 sm:py-4 border-2 border-gray-300 text-gray-700 font-bold rounded-xl sm:rounded-2xl hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm hover:shadow-md touch-target"
             on:click={onBack}
           >
             <span class="flex items-center justify-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               Retour
             </span>
           </button>
           <button
-            class="group relative flex-[2] px-6 py-4 rounded-2xl font-black shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all overflow-hidden transform hover:scale-105 active:scale-95"
+            class="group relative w-full sm:flex-[2] px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all overflow-hidden transform hover:scale-105 active:scale-95 touch-target"
             on:click={onConfirm}
             disabled={submitting}
           >

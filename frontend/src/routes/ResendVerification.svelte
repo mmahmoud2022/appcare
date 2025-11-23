@@ -37,19 +37,19 @@
     <div class="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border-2 border-white/50 p-8 hover:shadow-emerald-200/50 transition-all duration-300">
       <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 rounded-3xl -z-10"></div>
 
-      <div class="flex justify-center mb-6 animate-slide-down">
+      <div class="flex justify-center mb-4 sm:mb-6 animate-slide-down">
         <div class="relative">
-          <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-xl">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-10 sm:w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
             </svg>
           </div>
-          <div class="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-full shadow-lg"></div>
+          <div class="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-full shadow-lg"></div>
         </div>
       </div>
 
-      <h1 class="text-3xl font-bold text-gray-900 text-center mb-2">Renvoyer l'email de vérification</h1>
-      <p class="text-lg text-gray-700 font-medium text-center mb-6">Entrez votre adresse email pour recevoir un nouveau lien de vérification</p>
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-2 px-2">Renvoyer l'email de vérification</h1>
+      <p class="text-base sm:text-lg text-gray-700 font-medium text-center mb-4 sm:mb-6 px-4">Entrez votre adresse email pour recevoir un nouveau lien de vérification</p>
 
       {#if success}
         <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-5 mb-6 shadow-lg animate-scale-in">
